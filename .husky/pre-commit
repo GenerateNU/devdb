@@ -1,3 +1,4 @@
-bunx prettier --write .
+bun install
+bun run format
 bun test
 bun run build

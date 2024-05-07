@@ -1,0 +1,3 @@
+bunx prettier --write .
+bun test
+bun run build

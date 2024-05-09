@@ -1,0 +1,17 @@
+{
+  "name": "generate-routes-cli",
+  "type": "module",
+  "exports": "./dist/index.js",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
+  "bin": "./dist/index.js",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "tsup": "^8.0.2"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

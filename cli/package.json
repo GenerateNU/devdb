@@ -10,6 +10,7 @@
   "bin": "./dist/index.js",
   "devDependencies": {
     "@types/bun": "latest",
+    "prettier": "^3.2.5",
     "tsup": "^8.0.2"
   },
   "peerDependencies": {

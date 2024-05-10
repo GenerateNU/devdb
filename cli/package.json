@@ -1,0 +1,19 @@
+{
+  "name": "generate-routes-cli",
+  "type": "module",
+  "exports": "./dist/index.js",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "format": "prettier --write ."
+  },
+  "bin": "./dist/index.js",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "prettier": "^3.2.5",
+    "tsup": "^8.0.2"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

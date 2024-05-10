@@ -1,4 +1,7 @@
 bun install
 bun run format
 bun test
-bun run build
+cd ./cli
+bun install
+bun run format
+bun test

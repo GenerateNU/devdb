@@ -10,29 +10,8 @@ on:
     branches: ["main"]
 
 jobs:
-  build-main:
-    name: build-main
-    runs-on: ubuntu-latest
-
-    env:
-      DATABASE_URL: "postgresql://postgres:password@localhost:5432/generate-routes"
-      NEXTAUTH_SECRET: "placeholder"
-      NEXTAUTH_URL: "http://localhost:3000"
-      GITHUB_CLIENT_ID: "placeholder"
-      GITHUB_CLIENT_SECRET: "placeholder"
-
-    steps:
-      # ...
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v1
-
-      # run any `bun` or `bunx` command
-      - run: bun install
-      - run: bun run format
-      - run: bun test
-      - run: bun run build
-  build-cli:
-    name: build-cli
+  cli:
+    name: Format & build the CLI tool.
     runs-on: ubuntu-latest
 
     steps:

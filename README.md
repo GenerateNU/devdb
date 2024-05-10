@@ -2,8 +2,11 @@
 Automating CRUD route generation and deployment of shared development databases.
 
 > This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+> 
+> Learn more about it [here](https://github.com/GenerateNU/routes/wiki/T3-Information)
 
-## [Usage](https://github.com/GenerateNU/routes/wiki/Home/_edit#usage)
+# How do I use it?
+You can find how to use the CLI and dashboard [here](https://github.com/GenerateNU/routes/wiki#usage)
 
-
-## [Development](https://github.com/GenerateNU/routes/wiki/Home/_edit#development)
+# How do I setup the development environment?
+If you want to learn about the setup and timeline, it can be found [here](https://github.com/GenerateNU/routes/wiki/Development)

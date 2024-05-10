@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    name: build
+    name: build-cli
     runs-on: ubuntu-latest
 
     steps:

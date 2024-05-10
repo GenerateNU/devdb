@@ -19,6 +19,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v1
 
+        working-directory: ./cli
+
       # run any `bun` or `bunx` command
       - run: bun install
       - run: bun run format

@@ -14,9 +14,6 @@ jobs:
     name: Format & build the CLI tool
     runs-on: ubuntu-latest
 
-    env:
-      working-directory: ./cli
-
     steps:
       # ...
       - uses: actions/checkout@v4
@@ -24,6 +21,10 @@ jobs:
 
       # run any `bun` or `bunx` command
       - run: bun install
+        working-directory: ./cli
       - run: bun run format
+        working-directory: ./cli
       - run: bun test
+        working-directory: ./cli
       - run: bun run build
+        working-directory: ./cli

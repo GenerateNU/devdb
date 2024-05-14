@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Octokit, App } from "octokit";
+import { Octokit } from "octokit";
 
 import {
     createTRPCRouter,
@@ -20,15 +20,13 @@ export const gitHubRouter = createTRPCRouter({
     // Webhook endpoint
     makeWebhook: protectedProcedure
         .input(z.object({
-            repo: z.string(),
-            repoUrl: z.string().url(),
-            events: z.array(z.string()).default(["push"]),
+            repo: z.string()
         }))
         .mutation(async ({ ctx, input }) => {
-            const { repo, repoUrl, events } = input;
+            const { repo } = input;
 
             // Placeholder... need to figure out how to get access token
-            const accessToken = ctx.session.user.id;
+            const accessToken = process.env.GITHUB_ACCESS_TOKEN;
             const owner = ctx.session.user.name;
 
             // Configure octokit client

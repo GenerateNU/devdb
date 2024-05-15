@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { Octokit } from "octokit";
+import { App } from "octokit";
+import { readFileSync } from "fs";
 
 import {
     createTRPCRouter,
@@ -24,37 +25,55 @@ export const gitHubRouter = createTRPCRouter({
         }))
         .mutation(async ({ ctx, input }) => {
             const { repo } = input;
+            const owner = ctx.session?.user.name;
 
-            // Placeholder... need to figure out how to get access token
-            const accessToken = process.env.GITHUB_ACCESS_TOKEN;
-            const owner = ctx.session.user.name;
-
-            // Configure octokit client
-            const octokit = new Octokit({
-                auth: accessToken
-            })
-
-            try {
-                const response = await octokit.request(`POST /repos/${owner}/${repo}/hooks`, {
-                    owner: owner ?? "",
+            const privatePem = readFileSync("private-key.pem", {
+                encoding: "utf-8",
+            });
+        
+            const app = new App({
+                appId: "892635",
+                privateKey: privatePem,
+            });
+        
+            const response = await app.octokit.request(
+                `GET /repos/${owner}/${repo}/installation`,
+                {
+                    owner: owner,
                     repo: repo,
-                    name: 'web',
-                    active: true,
-                    events: [
-                        'push',
-                    ],
-                    config: {
-                        url: 'https://placeholder.com/github/push',
-                        content_type: 'json',
-                        // This value determines if host url must be verified for payloads
-                        insecure_ssl: '1'
-                    },
                     headers: {
-                        'X-GitHub-Api-Version': '2022-11-28'
-                    }
-                })
-
+                        "X-GitHub-Api-Version": "2022-11-28",
+                    },
+                },
+            );
+        
+            const installationId = response.data.id;
+        
+            const octokit = await app.getInstallationOctokit(installationId);
+        
+            try {
+                const response = await octokit.request(
+                    `POST /repos/${owner}/${repo}/hooks`,
+                    {
+                        owner: owner,
+                        repo: repo,
+                        name: "web",
+                        active: true,
+                        events: ["push", "pull_request"],
+                        config: {
+                            // to be replaced with actual webhook URL
+                            url: "https://example.com/webhook",
+                            content_type: "json",
+                            insecure_ssl: "1",
+                        },
+                        headers: {
+                            "X-GitHub-Api-Version": "2022-11-28",
+                        },
+                    },
+                );
+        
                 // Assuming successful creation of webhook
+                console.log(response.data);
                 return response.data;
             } catch (error) {
                 throw new Error("Failed to create webhook: " + error);

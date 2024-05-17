@@ -17,6 +17,8 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "bun": "^1.1.8",
+    "inquirer": "^9.2.21",
     "install": "^0.13.0"
   }
 }

@@ -3,6 +3,7 @@
 import inquirer from "inquirer";
 import fs from "fs";
 
+// this is where the prisma schema is made depending on what language the user selects 
 async function createPrismaSchema(language) {
   const dbProvider = language === "Python" ? "postgresql" : "mysql";
   const schemaContent = `
@@ -26,6 +27,7 @@ async function createPrismaSchema(language) {
   console.log("Prisma schema created successfully.");
 }
 
+//this is where the cli code is generated to ensure we are able to get the user info
 async function main() {
   const answers = await inquirer.prompt([
     {
@@ -43,12 +45,21 @@ async function main() {
       type: "input",
       name: "token",
       message: "Enter your cloud database token:",
-      when: answers => answers.deployDatabase,
+      when: (answers) => answers.deployDatabase,
     },
-  ]);   
-  const deployDatabaseStatus = answers.deployDatabase ? '' : 'no';
-  console.log('you enetered that you wanted a '+ answers.backendLanguage + ' schema with ' + deployDatabaseStatus +'deployment of your database to the cloud and your token is '+ answers.token + ' thank you for entering your information get to coding' )
+  ]);
+  //is the console log shwoing the user what they said to us as a confirmation
+  const deployDatabaseStatus = answers.deployDatabase ? "" : "no";
+  console.log(
+    "you enetered that you wanted a " +
+      answers.backendLanguage +
+      " schema with " +
+      deployDatabaseStatus +
+      "deployment of your database to the cloud and your token is " +
+      answers.token +
+      " thank you for entering your information get to coding",
+  );
   await createPrismaSchema(answers.backendLanguage);
 }
-
+//runs it 
 main();

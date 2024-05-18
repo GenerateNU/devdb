@@ -28,6 +28,10 @@ jobs:
 
       # run any `bun` or `bunx` command
       - run: bun install
+        working-directory: ./
       - run: bun run format
+        working-directory: ./
       - run: bun test
+        working-directory: ./
       - run: bun run build
+        working-directory: ./

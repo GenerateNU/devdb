@@ -24,6 +24,7 @@
     "@trpc/server": "next",
     "@types/inquirer": "^9.0.7",
     "@types/parse-git-config": "^3.0.4",
+    "execa": "^9.1.0",
     "husky": "latest",
     "inquirer": "^9.2.22",
     "next": "^14.2.1",

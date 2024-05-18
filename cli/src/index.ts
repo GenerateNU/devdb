@@ -1,40 +1,30 @@
 #!/usr/bin/env node
 
 import inquirer from "inquirer";
-import fs from "fs";
-
-// this is where the prisma schema is made depending on what language the user selects 
-async function createPrismaSchema(language) {
-  const dbProvider = language === "Python" ? "postgresql" : "mysql";
-  const schemaContent = `
-    datasource db {
-      provider = "${dbProvider}"
-      url      = env("DATABASE_URL")
-    }
-
-    generator client {
-      provider = "prisma-client-${language.toLowerCase()}"
-    }
-
-    model User {
-      id    Int    @id @default(autoincrement())
-      name  String
-      email String @unique
-    }
-  `;
-
-  fs.writeFileSync("prisma/schema.prisma", schemaContent);
-  console.log("Prisma schema created successfully.");
-}
+import parse, { type Config } from "parse-git-config";
+import type { CLIAnswers } from "./types";
+import { execa } from "execa";
+import { getUserPkgRunner } from "./utils/getPackageManager";
 
 //this is where the cli code is generated to ensure we are able to get the user info
 async function main() {
-  const answers = await inquirer.prompt([
+  const config: Config = parse.expandKeys(parse.sync());
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+  const repoURL = config.remote.origin.url;
+
+  const answers: CLIAnswers = (await inquirer.prompt([
     {
       type: "list",
       name: "backendLanguage",
       message: "What backend language are you using?",
       choices: ["TypeScript", "Python", "Go"],
+    },
+    {
+      type: "list",
+      name: "dbProvider",
+      message: "What database provider are you using?",
+      choices: ["sqlite", "mysql", "postgresql"],
     },
     {
       type: "confirm",
@@ -45,21 +35,38 @@ async function main() {
       type: "input",
       name: "token",
       message: "Enter your cloud database token:",
-      when: (answers) => answers.deployDatabase,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      when: (answers) => answers.deployDatabase === true,
     },
+    {
+      type: "confirm",
+      name: "correctRepo",
+      message: `Is ${repoURL} your correct repo?`,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      when: (answers) => answers.deployDatabase === true,
+    },
+  ])) as CLIAnswers;
+
+  const pkgRunner = getUserPkgRunner();
+  const { stdout } = await execa(pkgRunner, [
+    "prisma",
+    "init",
+    "--datasource-provider",
+    answers.dbProvider,
   ]);
-  //is the console log shwoing the user what they said to us as a confirmation
-  const deployDatabaseStatus = answers.deployDatabase ? "" : "no";
-  console.log(
-    "you enetered that you wanted a " +
-      answers.backendLanguage +
-      " schema with " +
-      deployDatabaseStatus +
-      "deployment of your database to the cloud and your token is " +
-      answers.token +
-      " thank you for entering your information get to coding",
-  );
-  await createPrismaSchema(answers.backendLanguage);
+
+  if (answers.deployDatabase) {
+    const connectionURL = ""; //TODO: Add later from AWS if deployed there and set DATABASE_URL to this.
+
+    console.log(repoURL);
+  }
+
+  console.log(stdout);
+
+  //exec("bunx prisma init --datasource-provider sqlite", (err, stdout, stderr) => {
+  /* if (answers.deployDatabase) {
+    await createPrismaSchema(answers.backendLanguage);
+  } */
 }
-//runs it 
-main();
+//runs it
+await main();

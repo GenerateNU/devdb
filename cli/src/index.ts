@@ -34,7 +34,7 @@ async function main() {
     {
       type: "input",
       name: "token",
-      message: "Enter your cloud database token:",
+      message: "Enter your Generate session token:",
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       when: (answers) => answers.deployDatabase === true,
     },
@@ -56,17 +56,15 @@ async function main() {
   ]);
 
   if (answers.deployDatabase) {
-    const connectionURL = ""; //TODO: Add later from AWS if deployed there and set DATABASE_URL to this.
+    // Send request to backend to create webhooks
+    // Send request to backend to create database
+    const connectionURL = "test-url@postgres.db lol"; //TODO: Add later from AWS if deployed there and set DATABASE_URL to this.
 
-    console.log(repoURL);
+    console.log(connectionURL);
   }
 
   console.log(stdout);
-
-  //exec("bunx prisma init --datasource-provider sqlite", (err, stdout, stderr) => {
-  /* if (answers.deployDatabase) {
-    await createPrismaSchema(answers.backendLanguage);
-  } */
 }
+
 //runs it
 await main();

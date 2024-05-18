@@ -53,8 +53,10 @@ async function testWebHook(): Promise<void> {
 
     // Assuming successful creation of webhook
     console.log(response.data);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return response.data;
   } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
     throw new Error("Failed to create webhook: " + error);
   }
 }

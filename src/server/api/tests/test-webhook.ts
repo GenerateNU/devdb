@@ -12,7 +12,7 @@ async function testWebHook(): Promise<void> {
   });
 
   const app = new App({
-    appId: "892635",
+    appId: process.env.GITHUB_APP_ID ?? "",
     privateKey: privatePem,
   });
 

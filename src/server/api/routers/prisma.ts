@@ -1,10 +1,15 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import axios from "axios";
+import { Octokit } from "@octokit/rest";
 import { exec } from "child_process";
 import { promisify } from "util";
 import { writeFile } from "fs/promises";
 const execAsync = promisify(exec);
+
+// Initialize Octokit with an access token
+const octokit = new Octokit({
+  auth: process.env.GITHUB_ACCESS_TOKEN,
+});
 
 export const githubWebhookRouter = createTRPCRouter({
   handlePush: publicProcedure
@@ -13,7 +18,8 @@ export const githubWebhookRouter = createTRPCRouter({
         ref: z.string(),
         after: z.string(),
         repository: z.object({
-          contents_url: z.string(),
+          owner: z.string(),
+          name: z.string(),
         }),
         installation: z.object({
           id: z.number(),
@@ -22,25 +28,21 @@ export const githubWebhookRouter = createTRPCRouter({
     )
     .mutation(async ({ input }) => {
       if (input.ref === "refs/heads/main") {
-        const contentUrl = input.repository.contents_url.replace(
-          "{+path}",
-          "prisma/schema.prisma",
-        );
         try {
-          const response = await axios.get(contentUrl, {
-            headers: {
-              Accept: "application/vnd.github.v3.raw",
-              Authorization: `token ${process.env.GITHUB_ACCESS_TOKEN}`,
+          // Fetch the content of the Prisma schema file using Octokit
+          const response = await octokit.repos.getContent({
+            owner: input.repository.owner,
+            repo: input.repository.name,
+            path: "prisma/schema.prisma",
+            mediaType: {
+              format: "raw",
             },
           });
-          const schemaContent = response.data;
 
-          // Save schemaContent to a local file or directly push to Prisma
-          await writeFile(
-            "Where the schema is being held",
-            schemaContent,
-            "utf8",
-          );
+          const schemaContent = response.data as unknown as string;
+
+          // Save schemaContent to a local file
+          await writeFile("prisma/schema.prisma", schemaContent, "utf8");
 
           // Apply changes using Prisma
           const { stdout, stderr } = await execAsync("npx prisma db push");

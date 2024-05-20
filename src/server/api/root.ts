@@ -1,4 +1,5 @@
 import { postRouter } from "~/server/api/routers/post";
+import { gitHubRouter } from "./routers/github-router";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 import { greeting } from "./routers/greeting";
 import { database } from "./routers/databases";
@@ -10,6 +11,7 @@ import { database } from "./routers/databases";
  */
 export const appRouter = createTRPCRouter({
   post: postRouter,
+  github: gitHubRouter,
   greeting: greeting,
   database: database,
 });

@@ -20,6 +20,11 @@ jobs:
       NEXTAUTH_URL: "http://localhost:3000"
       GITHUB_CLIENT_ID: "placeholder"
       GITHUB_CLIENT_SECRET: "placeholder"
+      AWS_MASTER_USERNAME: "placeholder"
+      AWS_MASTER_PASSWORD: "placeholder"
+      AWS_ACCESS_KEY_ID: "placeholder"
+      AWS_SECRET_ACCESS_KEY: "placeholder"
+      AWS_SESSION_TOKEN: "placeholder"
 
     steps:
       # ...
@@ -28,6 +33,10 @@ jobs:
 
       # run any `bun` or `bunx` command
       - run: bun install
+        working-directory: ./
       - run: bun run format
+        working-directory: ./
       - run: bun test
+        working-directory: ./
       - run: bun run build
+        working-directory: ./

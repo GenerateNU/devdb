@@ -3,7 +3,7 @@
 import inquirer from "inquirer";
 import parse, { type Config } from "parse-git-config";
 import type { CLIAnswers } from "./types";
-import execa from "execa";
+import { execa } from "execa";
 import { getUserPkgRunner } from "./utils/getPackageManager";
 
 //this is where the cli code is generated to ensure we are able to get the user info

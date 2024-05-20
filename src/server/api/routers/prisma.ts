@@ -30,6 +30,7 @@ export const githubWebhookRouter = createTRPCRouter({
           const response = await axios.get(contentUrl, {
             headers: {
               Accept: "application/vnd.github.v3.raw",
+              Authorization: `token ${process.env.GITHUB_ACCESS_TOKEN}`,
             },
           });
           const schemaContent = response.data;

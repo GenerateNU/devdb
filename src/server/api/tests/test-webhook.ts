@@ -1,0 +1,66 @@
+import { App } from "octokit";
+import { readFileSync } from "fs";
+
+async function testWebHook(): Promise<void> {
+  const repo = "cy2550";
+
+  // Placeholder... need to figure out how to get access token
+  const owner = "wyattchris";
+
+  const privatePem = readFileSync("private-key.pem", {
+    encoding: "utf-8",
+  });
+
+  const app = new App({
+    appId: process.env.GITHUB_APP_ID ?? "",
+    privateKey: privatePem,
+  });
+
+  const response = await app.octokit.request(
+    "GET /repos/{owner}/{repo}/installation",
+    {
+      owner: "wyattchris",
+      repo: "cy2550",
+      headers: {
+        "X-GitHub-Api-Version": "2022-11-28",
+      },
+    },
+  );
+
+  const installationId = response.data.id;
+
+  const octokit = await app.getInstallationOctokit(installationId);
+
+  try {
+    const response = await octokit.request(
+      `POST /repos/${owner}/${repo}/hooks`,
+      {
+        owner: "wyattchris",
+        repo: "cy2550",
+        name: "web",
+        active: true,
+        events: ["push", "pull_request"],
+        config: {
+          url: "https://example.com/webhook",
+          content_type: "json",
+          insecure_ssl: "1",
+        },
+        headers: {
+          "X-GitHub-Api-Version": "2022-11-28",
+        },
+      },
+    );
+
+    // Assuming successful creation of webhook
+    console.log(response.data);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return response.data;
+  } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+    throw new Error("Failed to create webhook: " + error);
+  }
+}
+
+testWebHook()
+  .then(() => console.log("Webhook created!"))
+  .catch((error) => console.error(error));

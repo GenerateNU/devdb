@@ -9,6 +9,7 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
+bun.lockb
 
 # Caches 
 
@@ -174,4 +175,4 @@ dist
 # Finder (MacOS) folder config
 .DS_Store
 
-bun.lockb
+*.lockb

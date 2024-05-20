@@ -4,7 +4,7 @@
 /node_modules
 /.pnp
 .pnp.js
-bun.lockb
+*.lockb
 
 # testing
 /coverage
@@ -42,4 +42,4 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 
-bun.lockb
+*.lockb

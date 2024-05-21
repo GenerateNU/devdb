@@ -5,10 +5,17 @@ import parse, { type Config } from "parse-git-config";
 import type { CLIAnswers } from "./types";
 import { execa } from "execa";
 import { getUserPkgRunner } from "./utils/getPackageManager";
+import parseGithubUrl from 'parse-github-url';
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import axios from "axios";
+
 
 //this is where the cli code is generated to ensure we are able to get the user info
 async function main() {
   const config: Config = parse.expandKeys(parse.sync());
+  const router = useRouter();
+  const [repo, setRepo] = useState("");
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
   const repoURL = config.remote.origin.url;
@@ -54,6 +61,17 @@ async function main() {
     "--datasource-provider",
     answers.dbProvider,
   ]);
+
+  const parsedUrl = parseGithubUrl(repoURL);
+  console.log('Name:', parsedUrl?.name ?? ""); // repositoryName
+  setRepo(parsedUrl?.name ?? "");
+
+  const url = "http://localhost:3000/api/trpc/gitHubRouter.makeWebhook";
+  const response = await axios.post(url, {
+    "json" : {
+      "repo": repo
+    }
+  });
 
   if (answers.deployDatabase) {
     // Send request to backend to create webhooks

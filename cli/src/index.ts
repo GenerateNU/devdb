@@ -8,7 +8,7 @@ import { getUserPkgRunner } from "./utils/getPackageManager";
 import parseGithubUrl from "parse-github-url";
 import axios from "axios";
 
-const baseUrl = "https://pig-content-happily.ngrok-free.app/";
+const baseUrl = "https://routes-orcin.vercel.app/";
 const apiPath = "api/trpc/";
 const webhookPath = "github.makeWebhook";
 const createDatabasePath = "database.create";

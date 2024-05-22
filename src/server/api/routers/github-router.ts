@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { App } from "octokit";
-import { readFileSync } from "fs";
 import gitUrlParse from "git-url-parse";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
@@ -28,13 +27,9 @@ export const gitHubRouter = createTRPCRouter({
 
       const { owner, name } = parsedUrl;
 
-      const privatePem = readFileSync("private-key.pem", {
-        encoding: "utf-8",
-      });
-
       const app = new App({
-        appId: process.env.GITHUB_APP_ID ?? "",
-        privateKey: privatePem,
+        appId: process.env.GITHUB_APP_ID!,
+        privateKey: process.env.GITHUB_PRIVATE_KEY!,
       });
 
       const response = await app.octokit.request(

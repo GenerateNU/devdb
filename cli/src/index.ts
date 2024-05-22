@@ -2,19 +2,24 @@
 
 import inquirer from "inquirer";
 import parse, { type Config } from "parse-git-config";
-import type { CLIAnswers } from "./types";
+import type { CLIAnswers, EndpointResponse } from "./types";
 import { execa } from "execa";
 import { getUserPkgRunner } from "./utils/getPackageManager";
-import parseGithubUrl from 'parse-github-url';
+import parseGithubUrl from "parse-github-url";
 import axios from "axios";
 
+const baseUrl = "https://pig-content-happily.ngrok-free.app/";
+const apiPath = "api/trpc/";
+const webhookPath = "github.makeWebhook";
+const createDatabasePath = "database.create";
+const endpointPath = "database.endpoint";
 
 //this is where the cli code is generated to ensure we are able to get the user info
 async function main() {
   const config: Config = parse.expandKeys(parse.sync());
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-  const repoURL = config?.remote?.origin?.url;
+  const repoUrl = config?.remote?.origin?.url;
 
   const answers: CLIAnswers = (await inquirer.prompt([
     {
@@ -27,7 +32,7 @@ async function main() {
       type: "list",
       name: "dbProvider",
       message: "What database provider are you using?",
-      choices: ["sqlite", "mysql", "postgresql"],
+      choices: ["mysql", "postgres"],
     },
     {
       type: "confirm",
@@ -44,46 +49,95 @@ async function main() {
     {
       type: "confirm",
       name: "correctRepo",
-      message: `Is ${repoURL} your correct repo?`,
+      message: `Is ${repoUrl} your correct repo?`,
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       when: (answers) => answers.deployDatabase === true,
     },
   ])) as CLIAnswers;
 
-  // const pkgRunner = getUserPkgRunner();
-  // const { stdout } = await execa(pkgRunner, [
-  //   "prisma",
-  //   "init",
-  //   "--datasource-provider",
-  //   answers.dbProvider,
-  // ]);
+  try {
+    const pkgRunner = getUserPkgRunner();
+    const { stdout } = await execa(pkgRunner, [
+      "prisma",
+      "init",
+      "--datasource-provider",
+      answers.dbProvider,
+    ]);
+  } catch (error) {
+    console.log("Prisma already setup");
+  }
 
   if (answers.deployDatabase) {
-    const parsedUrl = parseGithubUrl(repoURL as string);
-    console.log('Name:', parsedUrl?.name ?? ""); // repositoryName
-  
-    const url = "http://localhost:3000/api/trpc/github.makeWebhook";
-    
-    if (!repoURL) {
+    const parsedUrl = parseGithubUrl(repoUrl as string);
+    console.log("Name:", parsedUrl?.name ?? ""); // repositoryName
+
+    if (!repoUrl) {
       console.error("No repo found in git config");
       process.exit(1);
     }
 
-    const response = await axios.post(url, {
-      "json": {
-        "repo": parsedUrl?.name ?? ""
-      }
-    });
+    console.log("Creating webhooks...");
 
     // Send request to backend to create webhooks
+    try {
+      const webHookResponse = await axios.post(
+        `${baseUrl}${apiPath}${webhookPath}`,
+        {
+          json: {
+            repoUrl: repoUrl as string,
+          },
+        },
+      );
+    } catch (error) {
+      console.warn("Webhook may have already been created");
+    }
+
+    console.log("Webhook successfully created!");
+
+    console.log("Deploying database...");
     // Send request to backend to create database
-    const connectionURL = "test-url@postgres.db lol"; //TODO: Add later from AWS if deployed there and set DATABASE_URL to this.
+    try {
+      const createResponse = await axios.post(
+        `${baseUrl}${apiPath}${createDatabasePath}`,
+        {
+          json: {
+            repoUrl: repoUrl as string,
+            provider: answers.dbProvider,
+          },
+        },
+      );
+    } catch (error) {
+      console.warn("Database on this branch has already been deployed");
+    }
 
-    console.log(connectionURL);
+    console.log("Deploying, this may take up to 10 minutes");
+
+    // Send request to backend to create database
+    for (let i = 0; i < 10; i++) {
+      try {
+        const endpointResponse = await axios.post(
+          `${baseUrl}${apiPath}${endpointPath}`,
+          {
+            json: {
+              repoUrl: repoUrl as string,
+            },
+          },
+        );
+
+        if (endpointResponse) {
+          const endpointData = endpointResponse.data as EndpointResponse;
+          console.log("Connection information:\n");
+          console.log("\t" + endpointData.result.data.json.connection);
+          console.log();
+          // TODO: Automatically set connection as environment URL
+          break;
+        }
+      } catch (error) {
+        await new Promise((resolve) => setTimeout(resolve, 120000));
+        console.warn("Retrying...");
+      }
+    }
   }
-
-  // console.log(stdout);
 }
 
-//runs it
 await main();

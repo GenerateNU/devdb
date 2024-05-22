@@ -1,12 +1,9 @@
 import { z } from "zod";
 import { App } from "octokit";
 import { readFileSync } from "fs";
+import gitUrlParse from "git-url-parse";
 
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "~/server/api/trpc";
+import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
 // GitHub router
 export const gitHubRouter = createTRPCRouter({
@@ -22,13 +19,14 @@ export const gitHubRouter = createTRPCRouter({
   makeWebhook: publicProcedure
     .input(
       z.object({
-        repo: z.string(),
+        repoUrl: z.string(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
-      const { repo } = input;
-      // TODO: Replace with actual owner
-      const owner = "GenerateNU"
+    .mutation(async ({ input }) => {
+      const { repoUrl } = input;
+      const parsedUrl = gitUrlParse(repoUrl);
+
+      const { owner, name } = parsedUrl;
 
       const privatePem = readFileSync("private-key.pem", {
         encoding: "utf-8",
@@ -40,10 +38,10 @@ export const gitHubRouter = createTRPCRouter({
       });
 
       const response = await app.octokit.request(
-        `GET /repos/${owner}/${repo}/installation`,
+        `GET /repos/${owner}/${name}/installation`,
         {
           owner: owner,
-          repo: repo,
+          repo: name,
           headers: {
             "X-GitHub-Api-Version": "2022-11-28",
           },
@@ -57,16 +55,16 @@ export const gitHubRouter = createTRPCRouter({
 
       try {
         const response = await octokit.request(
-          `POST /repos/${owner}/${repo}/hooks`,
+          `POST /repos/${owner}/${name}/hooks`,
           {
             owner: owner,
-            repo: repo,
+            repo: name,
             name: "web",
             active: true,
             events: ["push", "pull_request"],
             config: {
               // to be replaced with actual webhook URL
-              url: "https://example.com/webhook",
+              url: `${process.env.NEXTAUTH_URL}/api/trpc/receive`,
               content_type: "json",
               insecure_ssl: "1",
             },

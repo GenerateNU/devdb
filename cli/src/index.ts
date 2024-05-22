@@ -27,14 +27,21 @@ async function updateExistingEnvVariable(
     // Split the content into lines
     const lines = content.toString().split("\n");
 
+    let missingVar = true;
+
     // Update the line containing the variable
     const updatedLines = lines.map((line: string) => {
       if (line.startsWith(varName)) {
+        missingVar = false;
         // Update the value of the variable
         return `${varName}=${newValue}`;
       }
       return line;
     });
+
+    if (missingVar) {
+      updatedLines.push(`${varName}=${newValue}`);
+    }
 
     // Join the updated lines back into a single string
     const updatedContent = updatedLines.join("\n");
@@ -116,7 +123,6 @@ async function main() {
   }
 
   if (answers.deployDatabase) {
-    let updateSuccessful = false;
     const parsedUrl = parseGithubUrl(repoUrl as string);
     console.log("Name:", parsedUrl?.name ?? ""); // repositoryName
 
@@ -180,16 +186,19 @@ async function main() {
           console.log();
 
           // Automatically set connection as environment URL
-          const success = await updateExistingEnvVariable(
-            "DATABASE_URL",
-            endpointData.result.data.json.connection,
-          );
-          if (success) {
-            console.log("Environment variable updated successfully.");
-            updateSuccessful = await askRetry();
-          } else {
-            console.error("Failed to update environment variable.");
-            updateSuccessful = await askRetry();
+          let retrySetEnv = true;
+          while (retrySetEnv) {
+            const success = await updateExistingEnvVariable(
+              "DATABASE_URL",
+              endpointData.result.data.json.connection,
+            );
+            if (success) {
+              console.log("Environment variable updated successfully.");
+              break;
+            } else {
+              console.error("Failed to update environment variable.");
+              retrySetEnv = await askRetry();
+            }
           }
           break;
         }

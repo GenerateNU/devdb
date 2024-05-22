@@ -7,12 +7,59 @@ import { execa } from "execa";
 import { getUserPkgRunner } from "./utils/getPackageManager";
 import parseGithubUrl from "parse-github-url";
 import axios from "axios";
+import { readFile, writeFile } from "fs/promises";
+
 
 const baseUrl = "https://pig-content-happily.ngrok-free.app/";
 const apiPath = "api/trpc/";
 const webhookPath = "github.makeWebhook";
 const createDatabasePath = "database.create";
 const endpointPath = "database.endpoint";
+
+
+async function updateExistingEnvVariable(varName: string, newValue: string): Promise<Boolean> {
+  try {
+    // Path to the .env.example file
+    const filePath = './.env.example';
+    const content = await readFile(filePath);
+
+    // Split the content into lines
+    const lines = content.toString().split('\n');
+
+    // Update the line containing the variable
+    const updatedLines = lines.map((line:string) => {
+      if (line.startsWith(varName)) {
+        // Update the value of the variable
+        return `${varName}=${newValue}`;
+      }
+      return line;
+    });
+
+    // Join the updated lines back into a single string
+    const updatedContent = updatedLines.join('\n');
+
+    // Write the updated contents back to the .env.example file
+    await writeFile(filePath, updatedContent);
+    //potentially add utf8 above if it fails
+    const verifyContent = await readFile(filePath, 'utf8');
+    return verifyContent.includes(`${varName}=${newValue}`);
+  } catch (error) {
+    console.error('Failed to update .env.example:', error);
+    return false;
+  }
+}
+
+async function askRetry(): Promise<boolean> {
+  const answers = await inquirer.prompt([
+      {
+          type: 'confirm',
+          name: 'retry',
+          message: 'Do you want to try updating the environment variable again?',
+          default: false,
+      }
+  ]);
+  return answers.retry;
+}
 
 //this is where the cli code is generated to ensure we are able to get the user info
 async function main() {
@@ -68,6 +115,7 @@ async function main() {
   }
 
   if (answers.deployDatabase) {
+    let updateSuccessful = false;
     const parsedUrl = parseGithubUrl(repoUrl as string);
     console.log("Name:", parsedUrl?.name ?? ""); // repositoryName
 
@@ -125,11 +173,22 @@ async function main() {
         );
 
         if (endpointResponse) {
+          
           const endpointData = endpointResponse.data as EndpointResponse;
           console.log("Connection information:\n");
           console.log("\t" + endpointData.result.data.json.connection);
           console.log();
+          updateExistingEnvVariable('CONNECTION_URL', 'endpointData.result.data.json.connection');
+          //updateEnvironmentVariable('CONNECTION_URL', endpointData.result.data.json.connection);
           // TODO: Automatically set connection as environment URL
+          const success = await updateExistingEnvVariable('CONNECTION_URL', endpointData.result.data.json.connection);
+        if (success) {
+          console.log('Environment variable updated successfully.');
+          updateSuccessful = await askRetry();
+        } else {
+          console.error('Failed to update environment variable.');
+          updateSuccessful = await askRetry();
+        }
           break;
         }
       } catch (error) {

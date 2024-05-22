@@ -2,7 +2,7 @@ import { Octokit } from "@octokit/rest";
 import { exec } from "child_process";
 import { promisify } from "util";
 import { writeFile } from "fs/promises";
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 
 const execAsync = promisify(exec);
 
@@ -12,11 +12,11 @@ const octokit = new Octokit({
 });
 
 // To handle a POST request to /api/github
-export async function POST(request: {
-  ref: string;
-  repository: { owner: string; name: string };
-}) {
-  const input = request;
+export async function POST(request: NextRequest) {
+  const input = (await request.json()) as {
+    ref: string;
+    repository: { owner: string; name: string };
+  };
 
   if (input.ref === "refs/heads/main") {
     try {
@@ -44,7 +44,7 @@ export async function POST(request: {
         console.error("Error during database push:", stderr);
         throw new Error("Failed to update database schema");
       }
-      return { success: true };
+      return NextResponse.json({ status: 200 });
     } catch (error) {
       console.error("Failed to handle GitHub push:", error);
       throw new Error("Failed to handle GitHub push");
@@ -52,5 +52,5 @@ export async function POST(request: {
   }
 
   // Do whatever you want
-  return NextResponse.json({ ignored: true }, { status: 200 });
+  return NextResponse.json({ status: 500 });
 }

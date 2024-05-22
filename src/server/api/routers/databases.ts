@@ -3,7 +3,6 @@ import { z } from "zod";
 import { publicProcedure } from "~/server/api/trpc";
 import { CreateDatabase, GetDatabaseConnection } from "~/server/external/aws";
 import { DBProvider } from "~/server/external/types";
-import { TRPCError } from "@trpc/server";
 
 export const database = {
   create: publicProcedure

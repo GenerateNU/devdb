@@ -3,7 +3,7 @@ import { z } from "zod";
 import { publicProcedure } from "~/server/api/trpc";
 import { CreateDatabase, GetDatabaseConnection } from "~/server/external/aws";
 import { DBProvider } from "~/server/external/types";
-import gitUrlParse from "git-url-parse";
+import { TRPCError } from "@trpc/server";
 
 export const database = {
   create: publicProcedure
@@ -11,8 +11,6 @@ export const database = {
       z.object({ repoUrl: z.string(), provider: z.nativeEnum(DBProvider) }),
     )
     .mutation(async ({ ctx, input }) => {
-      const parseResults = gitUrlParse(input.repoUrl);
-
       const branch = "main";
 
       const projectCount = await ctx.db.project.count({
@@ -27,14 +25,14 @@ export const database = {
         });
       }
 
-      await ctx.db.database.create({
+      const newDb = await ctx.db.database.create({
         data: {
           branch: branch,
           projectRepo: input.repoUrl,
         },
       });
 
-      const databaseName = `${parseResults.owner}-${parseResults.name}-${branch}`;
+      const databaseName = newDb.id;
 
       const result = await CreateDatabase(databaseName, input.provider);
 
@@ -42,19 +40,20 @@ export const database = {
     }),
 
   endpoint: publicProcedure
-    .input(z.object({ repoURL: z.string() }))
+    .input(z.object({ repoUrl: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const dbResults = await ctx.db.database.findFirstOrThrow({
         select: {
           id: true,
         },
         where: {
-          projectRepo: input.repoURL,
+          projectRepo: input.repoUrl,
         },
       });
 
       const result = await GetDatabaseConnection(dbResults.id);
-
-      return result;
+      return {
+        connection: result,
+      };
     }),
 };

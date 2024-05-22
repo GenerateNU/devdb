@@ -14,6 +14,7 @@ export async function CreateDatabase(
   provider: DBProvider,
 ): Promise<CreateDBInstanceCommandOutput> {
   const commandInput = {
+    DBName: "defaultdb",
     AllocatedStorage: 20,
     DBInstanceClass: "db.t3.micro",
     DBInstanceIdentifier: name,
@@ -42,7 +43,7 @@ export async function GetDatabaseConnection(
     if (response.DBInstances) {
       if (response.DBInstances?.length < 1) {
         throw Error("Database not found");
-      } else if (response.DBInstances[0]?.DBInstanceStatus == "Available") {
+      } else if (response.DBInstances[0]?.DBInstanceStatus === "available") {
         const provider = response.DBInstances[0].Engine;
         const username = "dev";
         const password = "devpassword123";
@@ -54,15 +55,16 @@ export async function GetDatabaseConnection(
 
         return connection;
       } else {
-        throw Error("Database not yet available");
+        throw Error(
+          `Database not yet available, current status: ${response.DBInstances[0]?.DBInstanceStatus}`,
+        );
       }
     }
   } catch (error) {
     if (error instanceof DBInstanceNotFoundFault) {
       throw error;
     } else {
-      console.error(error);
-      // Sleep before retry
+      throw error;
     }
   }
 }

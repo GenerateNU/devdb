@@ -5,3 +5,13 @@ export type CLIAnswers = {
   dbProvider: "sqlite" | "postgresql" | "mysql"; // mongodb will be added later
   correctRepo?: boolean;
 };
+
+export type EndpointResponse = {
+  result: {
+    data: {
+      json: {
+        connection: string;
+      };
+    };
+  };
+};

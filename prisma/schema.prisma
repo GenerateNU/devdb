@@ -64,6 +64,7 @@ model User {
     sessions      Session[]
     posts         Post[]
     Database      Database[]
+    verified      Boolean    @default(false)
 }
 
 model VerificationToken {

@@ -5,13 +5,16 @@ import parse, { type Config } from "parse-git-config";
 import type { CLIAnswers } from "./types";
 import { execa } from "execa";
 import { getUserPkgRunner } from "./utils/getPackageManager";
+import parseGithubUrl from 'parse-github-url';
+import axios from "axios";
+
 
 //this is where the cli code is generated to ensure we are able to get the user info
 async function main() {
   const config: Config = parse.expandKeys(parse.sync());
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-  const repoURL = config.remote.origin.url;
+  const repoURL = config?.remote?.origin?.url;
 
   const answers: CLIAnswers = (await inquirer.prompt([
     {
@@ -47,15 +50,31 @@ async function main() {
     },
   ])) as CLIAnswers;
 
-  const pkgRunner = getUserPkgRunner();
-  const { stdout } = await execa(pkgRunner, [
-    "prisma",
-    "init",
-    "--datasource-provider",
-    answers.dbProvider,
-  ]);
+  // const pkgRunner = getUserPkgRunner();
+  // const { stdout } = await execa(pkgRunner, [
+  //   "prisma",
+  //   "init",
+  //   "--datasource-provider",
+  //   answers.dbProvider,
+  // ]);
 
   if (answers.deployDatabase) {
+    const parsedUrl = parseGithubUrl(repoURL as string);
+    console.log('Name:', parsedUrl?.name ?? ""); // repositoryName
+  
+    const url = "http://localhost:3000/api/trpc/github.makeWebhook";
+    
+    if (!repoURL) {
+      console.error("No repo found in git config");
+      process.exit(1);
+    }
+
+    const response = await axios.post(url, {
+      "json": {
+        "repo": parsedUrl?.name ?? ""
+      }
+    });
+
     // Send request to backend to create webhooks
     // Send request to backend to create database
     const connectionURL = "test-url@postgres.db lol"; //TODO: Add later from AWS if deployed there and set DATABASE_URL to this.
@@ -63,7 +82,7 @@ async function main() {
     console.log(connectionURL);
   }
 
-  console.log(stdout);
+  // console.log(stdout);
 }
 
 //runs it

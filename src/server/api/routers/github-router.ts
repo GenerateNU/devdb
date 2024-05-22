@@ -19,7 +19,7 @@ export const gitHubRouter = createTRPCRouter({
     }),
 
   // Webhook endpoint
-  makeWebhook: protectedProcedure
+  makeWebhook: publicProcedure
     .input(
       z.object({
         repo: z.string(),
@@ -27,7 +27,8 @@ export const gitHubRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const { repo } = input;
-      const owner = ctx.session?.user.name;
+      // TODO: Replace with actual owner
+      const owner = "GenerateNU"
 
       const privatePem = readFileSync("private-key.pem", {
         encoding: "utf-8",

@@ -11,7 +11,7 @@ const octokit = new Octokit({
   auth: process.env.GITHUB_ACCESS_TOKEN,
 });
 
-// To handle a POST request to /api
+// To handle a POST request to /api/github
 export async function POST(request: {
   ref: string;
   repository: { owner: string; name: string };
@@ -33,10 +33,12 @@ export async function POST(request: {
       const schemaContent = response.data as unknown as string;
 
       // Save schemaContent to a local file
-      await writeFile("prisma/schema.prisma", schemaContent, "utf8");
+      await writeFile("./temp/schema.prisma", schemaContent, "utf8");
 
       // Apply changes using Prisma
-      const { stdout, stderr } = await execAsync("npx prisma db push");
+      const { stdout, stderr } = await execAsync(
+        "bunx prisma db push --schema=./temp/schema.prisma",
+      );
       console.log(stdout);
       if (stderr) {
         console.error("Error during database push:", stderr);

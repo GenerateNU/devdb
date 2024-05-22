@@ -10,7 +10,7 @@ import axios from "axios";
 import { readFile, writeFile } from "fs/promises";
 import { GetCredentials } from "./utils/getCredentials";
 
-export const baseUrl = "http://localhost:3000/"; //"https://routes-orcin.vercel.app/";
+export const baseUrl = "https://routes-orcin.vercel.app/";
 export const apiPath = "api/trpc/";
 const webhookPath = "github.makeWebhook";
 const createDatabasePath = "database.create";

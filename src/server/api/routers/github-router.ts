@@ -2,7 +2,11 @@ import { z } from "zod";
 import { App } from "octokit";
 import gitUrlParse from "git-url-parse";
 
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "~/server/api/trpc";
 
 // GitHub router
 export const gitHubRouter = createTRPCRouter({
@@ -15,7 +19,7 @@ export const gitHubRouter = createTRPCRouter({
     }),
 
   // Webhook endpoint
-  makeWebhook: publicProcedure
+  makeWebhook: protectedProcedure
     .input(
       z.object({
         repoUrl: z.string(),

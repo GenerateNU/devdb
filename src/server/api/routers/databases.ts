@@ -1,11 +1,11 @@
 import { z } from "zod";
 
-import { publicProcedure } from "~/server/api/trpc";
+import { protectedProcedure } from "~/server/api/trpc";
 import { CreateDatabase, GetDatabaseConnection } from "~/server/external/aws";
 import { DBProvider } from "~/server/external/types";
 
 export const database = {
-  create: publicProcedure
+  create: protectedProcedure
     .input(
       z.object({ repoUrl: z.string(), provider: z.nativeEnum(DBProvider) }),
     )
@@ -38,7 +38,7 @@ export const database = {
       return result;
     }),
 
-  endpoint: publicProcedure
+  endpoint: protectedProcedure
     .input(z.object({ repoUrl: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const dbResults = await ctx.db.database.findFirstOrThrow({

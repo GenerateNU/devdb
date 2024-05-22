@@ -64,7 +64,9 @@ export default async function Home() {
 
 async function CrudShowcase() {
   const session = await getServerAuthSession();
-  if (!session?.user.verified)
+  if (!session?.user) {
+    return null
+  } else if (!session?.user.verified)
     return <div className=" text-center">Not Yet Verified</div>;
 
   const sessionResponse = await api.post.getSessionToken();

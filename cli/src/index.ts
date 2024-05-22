@@ -8,12 +8,18 @@ import { getUserPkgRunner } from "./utils/getPackageManager";
 import parseGithubUrl from "parse-github-url";
 import axios from "axios";
 import { readFile, writeFile } from "fs/promises";
+import { GetCredentials } from "./utils/getCredentials";
 
-const baseUrl = "https://routes-orcin.vercel.app/";
-const apiPath = "api/trpc/";
+export const baseUrl = "http://localhost:3000/"; //"https://routes-orcin.vercel.app/";
+export const apiPath = "api/trpc/";
 const webhookPath = "github.makeWebhook";
 const createDatabasePath = "database.create";
 const endpointPath = "database.endpoint";
+
+// Create an Axios instance
+const axiosInstance = axios.create({
+  withCredentials: true, // Ensure credentials are sent with every request
+});
 
 async function updateExistingEnvVariable(
   varName: string,
@@ -124,10 +130,40 @@ async function main() {
 
   if (answers.deployDatabase) {
     const parsedUrl = parseGithubUrl(repoUrl as string);
-    console.log("Name:", parsedUrl?.name ?? ""); // repositoryName
+    console.log("Name:", parsedUrl?.name); // repositoryName
 
     if (!repoUrl) {
       console.error("No repo found in git config");
+      process.exit(1);
+    }
+
+    console.log("Authenticating token...");
+
+    try {
+      if (!answers.token) {
+        console.error("No token given");
+        process.exit(1);
+      }
+      const credentials = await GetCredentials(answers.token);
+
+      // TODO: Write the credentials to env file
+
+      // Add a request interceptor to include the cookie in the headers
+      axiosInstance.interceptors.request.use(
+        (config) => {
+          // Set the cookie in the header
+          config.headers.Cookie = credentials;
+
+          return config;
+        },
+        (error) => {
+          // Do something with request error
+          return Promise.reject(error);
+        },
+      );
+    } catch (error) {
+      console.error("Problem authenticating token");
+      console.error(error);
       process.exit(1);
     }
 
@@ -135,7 +171,7 @@ async function main() {
 
     // Send request to backend to create webhooks
     try {
-      const webHookResponse = await axios.post(
+      const webHookResponse = await axiosInstance.post(
         `${baseUrl}${apiPath}${webhookPath}`,
         {
           json: {
@@ -152,7 +188,7 @@ async function main() {
     console.log("Deploying database...");
     // Send request to backend to create database
     try {
-      const createResponse = await axios.post(
+      const createResponse = await axiosInstance.post(
         `${baseUrl}${apiPath}${createDatabasePath}`,
         {
           json: {
@@ -170,7 +206,7 @@ async function main() {
     // Send request to backend to create database
     for (let i = 0; i < 120; i++) {
       try {
-        const endpointResponse = await axios.post(
+        const endpointResponse = await axiosInstance.post(
           `${baseUrl}${apiPath}${endpointPath}`,
           {
             json: {

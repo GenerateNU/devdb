@@ -55,14 +55,15 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(cuid())
+    id            String     @id @default(cuid())
     name          String?
-    email         String?   @unique
+    email         String?    @unique
     emailVerified DateTime?
     image         String?
     accounts      Account[]
     sessions      Session[]
     posts         Post[]
+    Database      Database[]
 }
 
 model VerificationToken {
@@ -71,4 +72,25 @@ model VerificationToken {
     expires    DateTime
 
     @@unique([identifier, token])
+}
+
+model Project {
+    repo      String
+    instances Database[]
+
+    @@unique([repo])
+}
+
+model Database {
+    id        String   @id @default(cuid())
+    branch    String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    createdBy   User?   @relation(fields: [createdById], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    createdById String?
+    project     Project @relation(fields: [projectRepo], references: [repo], onDelete: Cascade, onUpdate: Cascade)
+    projectRepo String
+
+    @@unique([projectRepo, branch])
 }

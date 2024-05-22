@@ -1,25 +1,59 @@
 import { z } from "zod";
 
-import { RDSClient, CreateDBInstanceCommand } from "@aws-sdk/client-rds";
-
 import { publicProcedure } from "~/server/api/trpc";
-import process from "process";
+import { CreateDatabase, GetDatabaseConnection } from "~/server/external/aws";
+import { DBProvider } from "~/server/external/types";
+import { TRPCError } from "@trpc/server";
 
-const client = new RDSClient({ region: "us-east-1" });
+export const database = {
+  create: publicProcedure
+    .input(
+      z.object({ repoUrl: z.string(), provider: z.nativeEnum(DBProvider) }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const branch = "main";
 
-export const database = publicProcedure
-  .input(z.object({ name: z.string() }))
-  .mutation(async ({ input }) => {
-    const commandInput = {
-      AllocatedStorage: 20,
-      DBInstanceClass: "db.t3.micro",
-      DBInstanceIdentifier: input.name,
-      Engine: "mysql",
-      MasterUserPassword: process.env.AWS_MASTER_PASSWORD,
-      MasterUsername: process.env.AWS_MASTER_USERNAME,
-    };
-    const command = new CreateDBInstanceCommand(commandInput);
-    const result = await client.send(command);
+      const projectCount = await ctx.db.project.count({
+        where: {
+          repo: input.repoUrl,
+        },
+      });
 
-    return result;
-  });
+      if (projectCount == 0) {
+        await ctx.db.project.create({
+          data: { repo: input.repoUrl },
+        });
+      }
+
+      const newDb = await ctx.db.database.create({
+        data: {
+          branch: branch,
+          projectRepo: input.repoUrl,
+        },
+      });
+
+      const databaseName = newDb.id;
+
+      const result = await CreateDatabase(databaseName, input.provider);
+
+      return result;
+    }),
+
+  endpoint: publicProcedure
+    .input(z.object({ repoUrl: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const dbResults = await ctx.db.database.findFirstOrThrow({
+        select: {
+          id: true,
+        },
+        where: {
+          projectRepo: input.repoUrl,
+        },
+      });
+
+      const result = await GetDatabaseConnection(dbResults.id);
+      return {
+        connection: result,
+      };
+    }),
+};

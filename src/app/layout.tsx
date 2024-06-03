@@ -1,12 +1,13 @@
 import "~/styles/globals.css";
 
-import { Inter } from "next/font/google";
+import { Space_Mono } from "next/font/google";
 
 import { TRPCReactProvider } from "~/trpc/react";
 
-const inter = Inter({
+const space_mono = Space_Mono({
+  weight: ["400", "700"],
   subsets: ["latin"],
-  variable: "--font-sans",
+  variable: "--font-mono",
 });
 
 export const metadata = {
@@ -22,7 +23,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`font-sans ${inter.variable}`}>
+      <body className={`font-mono ${space_mono.variable}`}>
         <TRPCReactProvider>{children}</TRPCReactProvider>
       </body>
     </html>

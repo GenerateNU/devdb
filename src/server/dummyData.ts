@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 const openAiApiKey = process.env.OPENAI_API_KEY;
 
 const openai = new OpenAI({
-  organization: "org-P089j4RF5ZRlf84V2IcFipaS"
+  organization: "org-P089j4RF5ZRlf84V2IcFipaS",
 });
 
 async function generateDummyData(model: string, fields: string[]) {
@@ -41,12 +41,14 @@ async function main() {
         if (dummyData) {
           // Use type assertion to safely access the model
           const model = prisma[modelName as keyof typeof prisma];
-          if (model && typeof model === 'function') {
+          if (model && typeof model === "function") {
             // @ts-ignore
             await model!.create({ data: JSON.parse(dummyData) });
             console.log(`Data inserted for model ${modelName}`);
           } else {
-            console.error(`Model ${modelName} does not exist in Prisma Client.`);
+            console.error(
+              `Model ${modelName} does not exist in Prisma Client.`,
+            );
           }
         }
       }

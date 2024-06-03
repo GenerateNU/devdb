@@ -24,7 +24,7 @@ async function generateDummyData(model: string, fields: string[]) {
   }
 }
 
-async function main() {
+async function dummyCreate() {
   const schema = readFileSync("./prisma/schema.prisma", "utf8");
   // Simplified parser for demonstration purposes. Consider a robust parser for real applications.
   const models = schema.match(/model \w+ {[^}]+}/g);
@@ -32,6 +32,7 @@ async function main() {
   if (models) {
     for (const modelDef of models) {
       const modelName = modelDef.match(/model (\w+) {/)?.[1];
+      console.log(modelName);
       const fields = modelDef
         .match(/\w+:/g)
         ?.map((field) => field.slice(0, -1));
@@ -43,7 +44,7 @@ async function main() {
           const model = prisma[modelName as keyof typeof prisma];
           if (model && typeof model === "function") {
             // @ts-ignore
-            await model!.create({ data: JSON.parse(dummyData) });
+            await model.create({ data: JSON.parse(dummyData) });
             console.log(`Data inserted for model ${modelName}`);
           } else {
             console.error(
@@ -58,4 +59,4 @@ async function main() {
   await prisma.$disconnect();
 }
 
-main();
+export default dummyCreate;

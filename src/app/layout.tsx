@@ -5,7 +5,7 @@ import { Space_Mono } from "next/font/google";
 import { TRPCReactProvider } from "~/trpc/react";
 
 const space_mono = Space_Mono({
-  weight: "400",
+  weight: ["400", "700"],
   subsets: ["latin"],
   variable: "--font-mono",
 });

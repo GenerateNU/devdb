@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-import axios from "axios";
 import OpenAI from "openai";
 import { readFileSync } from "fs";
 
@@ -7,8 +6,7 @@ const prisma = new PrismaClient();
 const openAiApiKey = process.env.OPENAI_API_KEY;
 
 const openai = new OpenAI({
-  organization: "org-P089j4RF5ZRlf84V2IcFipaS",
-  project: "$PROJECT_ID",
+  organization: "org-P089j4RF5ZRlf84V2IcFipaS"
 });
 
 async function generateDummyData(model: string, fields: string[]) {
@@ -41,8 +39,15 @@ async function main() {
       if (modelName && fields) {
         const dummyData = await generateDummyData(modelName, fields);
         if (dummyData) {
-          await prisma[modelName].create({ data: dummyData });
-          console.log(`Data inserted for model ${modelName}`);
+          // Use type assertion to safely access the model
+          const model = prisma[modelName as keyof typeof prisma];
+          if (model && typeof model === 'function') {
+            // @ts-ignore
+            await model!.create({ data: JSON.parse(dummyData) });
+            console.log(`Data inserted for model ${modelName}`);
+          } else {
+            console.error(`Model ${modelName} does not exist in Prisma Client.`);
+          }
         }
       }
     }

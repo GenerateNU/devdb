@@ -1,6 +1,10 @@
+"use client";
+
 import React, { useState } from "react";
-import Navbar from "src/app/_components/NavBar";
-import ProjectCard from "src/app/_components/projectcard";
+import Navbar from "../_components/NavBar";
+import ProjectCard from "../_components/projectcard";
+import SearchInput from "../_components/SearchInput";
+import ProjectList from "../_components/ProjectList";
 
 const Dashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -66,32 +70,19 @@ const Dashboard: React.FC = () => {
   return (
     <>
       <Navbar />
-      <div className=" min-h-screen min-x-screen">
-        <div className="flex flex-col items-center justify-center min-x-screen min-h-screen bg-gradient-to-r from-blue-900 to-blue-700 text-white">
-          <div className="mb-8">
-            <input
-              type="text"
-              placeholder="Search projects or databases"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full p-2 rounded bg-white text-gray-700 placeholder-gray-500"
+
+      <div className="min-h-screen min-x-screen">
+        <div className="px-24 py-12 min-x-screen min-h-screen bg-gradient-to-b from-generate-dark to-black from-33 text-white">
+          <div className="flex flex-col gap-4">
+            <SearchInput
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
             />
-          </div>
-          <div className="w-full">
-            {filteredProjects.map((project, index) => (
-              <ProjectCard
-                key={index}
-                projectName={project.projectName}
-                route={project.route}
-                branchesCount={project.branchesCount}
-                databasesCount={project.databasesCount}
-                branches={project.branches}
-                creator={project.creator}
-                createdOn={project.createdOn}
-                isOpen={openProject === index}
-                onToggle={() => handleToggle(index)}
-              />
-            ))}
+            <ProjectList
+              projects={filteredProjects}
+              openProject={openProject}
+              handleToggle={handleToggle}
+            />
           </div>
         </div>
       </div>

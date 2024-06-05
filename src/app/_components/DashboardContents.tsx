@@ -1,5 +1,6 @@
 "use client";
 
+import { api } from "~/trpc/react";
 import { useState } from "react";
 import ProjectList from "./ProjectList";
 import SearchInput from "./SearchInput";
@@ -12,6 +13,8 @@ export default function DashboardItems() {
     setOpenProject(openProject === index ? null : index);
   };
 
+  //const deleteProjectMutation = api.database.create.useMutation()
+
   const projects = [
     {
       projectName: "natesawant",
@@ -20,10 +23,9 @@ export default function DashboardItems() {
       databasesCount: 0,
       branches: [
         {
+          creator: "natesawant",
           name: "main",
           status: "Running",
-          action: "M10 9v6m4-6v6",
-          actionLabel: "Connect to Database",
         },
       ],
       creator: "Nate Sawant",
@@ -36,22 +38,19 @@ export default function DashboardItems() {
       databasesCount: 2,
       branches: [
         {
+          creator: "natesawant",
           name: "main",
           status: "Running",
-          action: "M10 9v6m4-6v6",
-          actionLabel: "Connect to Database",
         },
         {
+          creator: "natesawant",
           name: "stopped-example",
           status: "Stopped",
-          action: "M14.752 11.168l-6.048 3.684",
-          actionLabel: "Connect to Database",
         },
         {
+          creator: "natesawant",
           name: "no-database-example",
           status: "No DB",
-          action: "M12 4v16m8-8H4",
-          actionLabel: "Create Database",
         },
       ],
       creator: "Nate Sawant",
@@ -60,7 +59,7 @@ export default function DashboardItems() {
   ];
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-8">
       <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
       <ProjectList
         projects={projects}

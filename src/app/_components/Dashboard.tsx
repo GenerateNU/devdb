@@ -7,7 +7,7 @@ const Dashboard: React.FC = () => {
     <>
       <Navbar />
       <div className="min-h-screen min-x-screen">
-        <div className="px-24 py-12 min-x-screen min-h-screen bg-gradient-to-b from-generate-dark to-black from-33 text-white">
+        <div className="px-4 sm:px-12 md:px-24 lg:px-48 py-12 min-x-screen min-h-screen bg-gradient-to-b from-generate-dark to-black from-33 text-white">
           <DashboardItems />
         </div>
       </div>

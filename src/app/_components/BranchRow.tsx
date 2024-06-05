@@ -1,52 +1,62 @@
+function CreateButton() {
+  return (
+    <button>
+      <img className=" px-4" src="./images/PlusIcon.svg" />
+    </button>
+  );
+}
+
+function DeleteButton() {
+  return (
+    <button>
+      <img className=" px-4" src="./images/DeleteIcon.svg" />
+    </button>
+  );
+}
+
+function PauseButton() {
+  return (
+    <button>
+      <img className=" px-4" src="./images/PauseIcon.svg" />
+    </button>
+  );
+}
+
+function PlayButton() {
+  return (
+    <button>
+      <img className=" px-4" src="./images/PlayIcon.svg" />
+    </button>
+  );
+}
+
 export default function BranchRow(props: {
+  creator: string;
   name: string;
   status: string;
-  action: string;
-  actionLabel: string;
 }) {
+  const actionLabel =
+    status === "No DB" ? "Create Database" : "Connect to Database";
+
   return (
-    <div className="flex justify-between items-center py-3 px-12 shadow-inner">
+    <div className="flex justify-between items-center py-3 pl-12 pr-8 shadow-inner">
       <span>
-        {props.name} / {props.status}
+        {props.creator} / {props.name}
       </span>
       <span>
         {props.status} /{" "}
         <a href="#" className="text-blue-500 hover:underline">
-          {props.actionLabel}
+          {actionLabel}
         </a>
       </span>
-      <button>
-        <svg
-          className="w-6 h-6 text-gray-500"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d={`M${props.action}`}
-          />
-        </svg>
-      </button>
-      <button>
-        <svg
-          className="w-6 h-6 text-red-500"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M6 18L18 6M6 6l12 12"
-          />
-        </svg>
-      </button>
+      <div className=" flex flex-row gap-4">
+        {props.status === "No DB" && <CreateButton />}
+        {props.status === "Stopped" && <PlayButton />}
+        {props.status === "Running" && <PauseButton />}
+        {(props.status === "Running" || props.status === "Stopped") && (
+          <DeleteButton />
+        )}
+      </div>
     </div>
   );
 }

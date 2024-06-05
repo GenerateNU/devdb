@@ -17,7 +17,7 @@ const Navbar: React.FC = () => {
           <h1 className="text-xl font-bold">DevDB</h1>
         </div>
       </Link>
-      <div className="flex gap-6">
+      <div className="flex gap-2 sm:gap-6">
         <Link href="/">
           <button className="hover:underline font-bold">Home</button>
         </Link>

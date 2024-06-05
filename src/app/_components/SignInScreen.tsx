@@ -22,7 +22,11 @@ const SignInScreen: React.FC = () => {
           </div>
           <div className="flex flex-row gap-24 justify-center">
             <Button href="/request-access" text="Request Access ->" />
-            <Button href="/github-repo" text="View GitHub Repo ->" />
+            <Button
+              href="https://github.com/GenerateNU/devdb"
+              text="View GitHub Repo ->"
+              newTab
+            />
           </div>
           <Button href="/api/auth/signin" text="Sign In" yellow />
         </div>

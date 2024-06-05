@@ -10,10 +10,9 @@ interface ProjectListProps {
     branchesCount: number;
     databasesCount: number;
     branches: Array<{
+      creator: string;
       name: string;
       status: string;
-      action: string;
-      actionLabel: string;
     }>;
     creator: string;
     createdOn: string;
@@ -28,7 +27,7 @@ const ProjectList: React.FC<ProjectListProps> = ({
   handleToggle,
 }) => {
   return (
-    <div className="w-full">
+    <div className="w-full flex flex-col gap-8">
       {projects.map((project, index) => (
         <ProjectCard
           key={index}

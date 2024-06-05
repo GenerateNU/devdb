@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import searchIcon from "../../../public/images/Search Icon.svg";
+import searchIcon from "../../../public/images/SearchIcon.svg";
 
 interface SearchInputProps {
   searchTerm: string;
@@ -14,7 +14,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
   setSearchTerm,
 }) => {
   return (
-    <div className="flex flex-row bg-white text-gray-700 pl-12 p-2 gap-4">
+    <div className="flex flex-row w-fit bg-white text-gray-700 pl-12 py-2 gap-8">
       <Image
         src={searchIcon as string}
         alt="Search Icon"
@@ -26,7 +26,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
         placeholder="Search projects or databases"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        className="p-2 w-full text-black placeholder:text-input-text"
+        className="p-2 min-w-[324px] w-full text-black placeholder:text-input-text outline-none"
       />
     </div>
   );

@@ -1,11 +1,11 @@
 import React from "react";
 import BranchRow from "./BranchRow";
+import Link from "next/link";
 
 interface Branch {
+  creator: string;
   name: string;
   status: string;
-  action: string;
-  actionLabel: string;
 }
 
 interface ProjectCardProps {
@@ -32,48 +32,37 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   onToggle,
 }) => {
   return (
-    <div className="bg-white text-black shadow-md mb-4">
+    <div className="bg-white text-black shadow-md">
       <div
-        className={`p-4 flex justify-between items-center drop-shadow ${isOpen ? " bg-generate-sw" : ""}`}
-        onClick={onToggle}
+        className={` pr-8 py-3 flex flex-row justify-between ${isOpen ? "bg-generate-sw" : "bg-white"}`}
       >
-        <div className="flex items-center">
-          <button className="mr-2">
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d={`M${isOpen ? "5 15l7-7 7 7" : "19 9l-7 7-7-7"}`}
-              />
-            </svg>
+        <div className=" flex flex-row items-center">
+          <button className=" px-12" onClick={onToggle}>
+            <img src="./images/ChevronIcon.svg" className=" w-8" />
           </button>
-          <span className=" select-none">
-            {projectName} / {route} - {branchesCount} branches -{" "}
-            {databasesCount} databases
+          <span>
+            <Link
+              className=" underline"
+              rel="noopener noreferrer"
+              target="_blank"
+              href={"https://github.com/GenerateNU/"}
+            >
+              {projectName}
+            </Link>{" "}
+            /{" "}
+            <Link
+              className=" underline"
+              rel="noopener noreferrer"
+              target="_blank"
+              href={"https://github.com/GenerateNU/devdb"}
+            >
+              {route}
+            </Link>{" "}
+            - {branchesCount} branches - {databasesCount} databases
           </span>
         </div>
-        <button>
-          <svg
-            className="w-6 h-6 text-red-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
+        <button className=" px-4 ">
+          <img src="./images/DeleteIcon.svg" />
         </button>
       </div>
       {isOpen && (
@@ -82,14 +71,13 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             {branches.map((branch, index) => (
               <BranchRow
                 key={index}
+                creator={branch.creator}
                 name={branch.name}
                 status={branch.status}
-                action={branch.action}
-                actionLabel={branch.actionLabel}
               />
             ))}
           </div>
-          <div className="flex flex-col gap-3 py-3 px-12 shadow-inner">
+          <div className="flex flex-col gap-3 py-3 px-12 shadow-inner bg-white">
             <p>Created by: {creator}</p>
             <p>Created on: {createdOn}</p>
           </div>

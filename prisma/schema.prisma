@@ -2,7 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+    provider        = "prisma-client-js"
+    previewFeatures = ["fullTextSearch"]
 }
 
 datasource db {
@@ -64,8 +65,11 @@ model VerificationToken {
 }
 
 model Project {
-    repository String
-    branches   Branch[]
+    owner          String
+    ownerName      String
+    repository     String
+    repositoryName String
+    branches       Branch[]
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -76,6 +80,7 @@ model Project {
     rdsInstanceId String
 
     @@unique([repository])
+    @@index([ownerName, repositoryName, owner, repository])
 }
 
 model RDSInstance {

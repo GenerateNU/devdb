@@ -1,3 +1,4 @@
+import gitUrlParse from "git-url-parse";
 import { z } from "zod";
 
 import { protectedProcedure } from "~/server/api/trpc";
@@ -31,6 +32,15 @@ export const database = {
             },
           },
         },
+        where: {
+          ...(input.searchTerms !== ""
+            ? {
+                repositoryName: {
+                  search: input.searchTerms,
+                },
+              }
+            : {}),
+        },
       });
 
       return searchResults;
@@ -43,23 +53,22 @@ export const database = {
     .mutation(async ({ ctx, input }) => {
       const branch = "main";
 
-      const projectCount = await ctx.db.project.count({
-        where: {
-          repository: input.repoUrl,
-        },
-      });
+      const parsedUrl = gitUrlParse(input.repoUrl);
+
+      const { owner, name, href } = parsedUrl;
 
       const { id } = await ctx.db.rDSInstance.create({ data: {} });
 
-      if (projectCount == 0) {
-        await ctx.db.project.create({
-          data: {
-            repository: input.repoUrl,
-            createdById: ctx.session.user.id,
-            rdsInstanceId: id,
-          },
-        });
-      }
+      await ctx.db.project.create({
+        data: {
+          owner: href.split("/").slice(0, -1).join("/"),
+          ownerName: owner,
+          repository: href,
+          repositoryName: name,
+          createdById: ctx.session.user.id,
+          rdsInstanceId: id,
+        },
+      });
 
       await ctx.db.branch.create({
         data: {

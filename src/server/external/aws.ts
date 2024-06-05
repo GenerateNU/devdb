@@ -3,7 +3,17 @@ import {
   CreateDBInstanceCommand,
   DescribeDBInstancesCommand,
   DBInstanceNotFoundFault,
+  DeleteDBInstanceCommand,
+  StartDBInstanceCommand,
+  StopDBInstanceCommand,
   type CreateDBInstanceCommandOutput,
+  type DeleteDBInstanceCommandOutput,
+  type DeleteDBInstanceCommandInput,
+  type CreateDBInstanceCommandInput,
+  type StartDBInstanceCommandInput,
+  type StartDBInstanceResult,
+  type StopDBInstanceResult,
+  type StopDBInstanceCommandInput,
 } from "@aws-sdk/client-rds";
 import type { DBProvider } from "./types";
 
@@ -13,7 +23,7 @@ export async function CreateDatabase(
   name: string,
   provider: DBProvider,
 ): Promise<CreateDBInstanceCommandOutput> {
-  const commandInput = {
+  const commandInput: CreateDBInstanceCommandInput = {
     DBName: "defaultdb",
     AllocatedStorage: 20,
     DBInstanceClass: "db.t3.micro",
@@ -23,6 +33,19 @@ export async function CreateDatabase(
     MasterUserPassword: "devpassword123",
   };
   const command = new CreateDBInstanceCommand(commandInput);
+  const result = client.send(command);
+
+  return result;
+}
+
+export async function DeleteDatabase(
+  name: string,
+): Promise<DeleteDBInstanceCommandOutput> {
+  const commandInput: DeleteDBInstanceCommandInput = {
+    DBInstanceIdentifier: name,
+  };
+
+  const command = new DeleteDBInstanceCommand(commandInput);
   const result = client.send(command);
 
   return result;
@@ -67,4 +90,28 @@ export async function GetDatabaseConnection(
       throw error;
     }
   }
+}
+
+export async function StartDatabase(
+  name: string,
+): Promise<StartDBInstanceResult> {
+  const input: StartDBInstanceCommandInput = {
+    DBInstanceIdentifier: name,
+  };
+  const command = new StartDBInstanceCommand(input);
+  const result = await client.send(command);
+
+  return result;
+}
+
+export async function StopDatabase(
+  name: string,
+): Promise<StopDBInstanceResult> {
+  const input: StopDBInstanceCommandInput = {
+    DBInstanceIdentifier: name,
+  };
+  const command = new StopDBInstanceCommand(input);
+  const result = await client.send(command);
+
+  return result;
 }

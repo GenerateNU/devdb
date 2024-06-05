@@ -110,48 +110,21 @@ export const database = {
       return result;
     }),
 
-  delete: protectedProcedure
-    .input(z.object({ repoUrl: z.string() }))
-    .mutation(async ({ ctx, input }) => {
-      const findResults = await ctx.db.database.findFirstOrThrow({
-        select: {
-          id: true,
-        },
-        where: {
-          projectRepo: input.repoUrl,
-        },
-      });
-
-      console.log(findResults);
-
-      const deleteResults = await ctx.db.database.delete({
-        where: {
-          id: findResults.id,
-        },
-      });
-
-      console.log(deleteResults);
-
-      const result = await DeleteDatabase(findResults.id);
-
-      return result;
-    }),
-
   endpoint: protectedProcedure
     .input(z.object({ repoUrl: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const dbResults = await ctx.db.database.findFirstOrThrow({
+      const dbResults = await ctx.db.project.findFirstOrThrow({
         select: {
-          id: true,
+          rdsInstanceId: true,
         },
         where: {
-          projectRepo: input.repoUrl,
+          repository: input.repoUrl,
         },
       });
 
       console.log(dbResults);
 
-      const result = await GetDatabaseConnection(dbResults.id);
+      const result = await GetDatabaseConnection(dbResults.rdsInstanceId);
       return {
         connection: result,
       };
@@ -160,36 +133,36 @@ export const database = {
   start: protectedProcedure
     .input(z.object({ repoUrl: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const dbResults = await ctx.db.database.findFirstOrThrow({
+      const dbResults = await ctx.db.project.findFirstOrThrow({
         select: {
-          id: true,
+          rdsInstanceId: true,
         },
         where: {
-          projectRepo: input.repoUrl,
+          repository: input.repoUrl,
         },
       });
 
       console.log(dbResults);
 
-      const result = await StartDatabase(dbResults.id);
+      const result = await StartDatabase(dbResults.rdsInstanceId);
       return result;
     }),
 
   stop: protectedProcedure
     .input(z.object({ repoUrl: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const dbResults = await ctx.db.database.findFirstOrThrow({
+      const dbResults = await ctx.db.project.findFirstOrThrow({
         select: {
-          id: true,
+          rdsInstanceId: true,
         },
         where: {
-          projectRepo: input.repoUrl,
+          repository: input.repoUrl,
         },
       });
 
       console.log(dbResults);
 
-      const result = await StopDatabase(dbResults.id);
+      const result = await StopDatabase(dbResults.rdsInstanceId);
       return result;
     }),
 };

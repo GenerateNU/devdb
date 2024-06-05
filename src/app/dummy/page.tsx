@@ -10,7 +10,8 @@ export default function Dummy() {
   const handleCreateDummyData = () => {
     testDummy
       .mutateAsync({ name: "test" })
-      .then((data) => setResults(`${data as string}`))
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      .then((data) => setResults(`${data}`))
       .catch((error) => console.error(error));
   };
 

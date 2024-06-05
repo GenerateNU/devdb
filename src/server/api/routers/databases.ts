@@ -11,6 +11,18 @@ import {
 import { DBProvider } from "~/server/external/types";
 
 export const database = {
+  get: protectedProcedure
+    .input(z.object({ searchTerms: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const searchResults = ctx.db.project.findMany({
+        include: {
+          instances: true,
+        },
+      });
+
+      return searchResults;
+    }),
+
   create: protectedProcedure
     .input(
       z.object({ repoUrl: z.string(), provider: z.nativeEnum(DBProvider) }),

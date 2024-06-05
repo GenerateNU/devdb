@@ -13,61 +13,41 @@ export default function DashboardItems() {
     setOpenProject(openProject === index ? null : index);
   };
 
-  //const deleteProjectMutation = api.database.create.useMutation()
+  const getProjectsQuery = api.database.get.useQuery({
+    searchTerms: searchTerm,
+  });
 
-  const projects = [
-    {
-      projectName: "natesawant",
-      route: "website",
-      branchesCount: 1,
-      databasesCount: 0,
-      instanceStatus: "Running",
-      branches: [
-        {
-          creator: "natesawant",
-          name: "main",
-          status: "Running",
-        },
-      ],
-      creator: "Nate Sawant",
-      createdOn: "May 27, 2024",
-    },
-    {
-      projectName: "Generate",
-      route: "routes",
-      branchesCount: 3,
-      databasesCount: 2,
-      instanceStatus: "Stopped",
-      branches: [
-        {
-          creator: "natesawant",
-          name: "main",
-          status: "Running",
-        },
-        {
-          creator: "diffuser",
-          name: "stopped-example",
-          status: "Stopped",
-        },
-        {
-          creator: "natesawant",
-          name: "no-database-example",
-          status: "No DB",
-        },
-      ],
-      creator: "Nate Sawant",
-      createdOn: "May 27, 2024",
-    },
-  ];
+  const mappedProjects = getProjectsQuery.data?.map((project) => {
+    return {
+      projectName: project.repo,
+      route: project.repo,
+      branchesCount: project.instances.length,
+      databasesCount: project.instances.length,
+      instanceStatus: "TODO",
+      branches: project.instances.map((branch) => {
+        return {
+          creator: "TODO",
+          name: branch.branch,
+          status: "TODO: REMOVE",
+        };
+      }),
+      creator: "TODO",
+      createdOn: "TODO",
+    };
+  });
+
+  console.log(mappedProjects);
 
   return (
     <div className="flex flex-col gap-8">
       <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-      <ProjectList
-        projects={projects}
-        openProject={openProject}
-        handleToggle={handleToggle}
-      />
+      {mappedProjects && (
+        <ProjectList
+          projects={mappedProjects}
+          openProject={openProject}
+          handleToggle={handleToggle}
+        />
+      )}
     </div>
   );
 }

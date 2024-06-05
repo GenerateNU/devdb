@@ -7,12 +7,15 @@ import { DBProvider } from "~/server/external/types";
 
 const CreateProject: React.FC = () => {
   const [projectName, setProjectName] = useState("");
-  const createProjectMutation = api.database.create.useMutation()
+  const createProjectMutation = api.database.create.useMutation();
 
   const handleCreateProject = () => {
     // Handle project creation logic here
     console.log("Creating project:", projectName);
-    createProjectMutation.mutate({ repoUrl: projectName, provider: DBProvider.PostgreSQL })
+    createProjectMutation.mutate({
+      repoUrl: projectName,
+      provider: DBProvider.PostgreSQL,
+    });
   };
 
   return (

@@ -52,18 +52,18 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
               className=" underline"
               rel="noopener noreferrer"
               target="_blank"
-              href={"https://github.com/GenerateNU/"}
+              href={projectName.split("/").slice(0, -1).join("/")}
             >
-              {projectName}
+              {projectName.split("/").slice(-2)[0]}
             </Link>{" "}
             /{" "}
             <Link
               className=" underline"
               rel="noopener noreferrer"
               target="_blank"
-              href={"https://github.com/GenerateNU/devdb"}
+              href={route}
             >
-              {route}
+              {route.split("/").slice(-1)[0]}
             </Link>{" "}
             - {branchesCount} branches - {databasesCount} databases
           </span>

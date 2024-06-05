@@ -80,7 +80,7 @@ model Project {
 
 model RDSInstance {
     id             String    @id @default(cuid())
-    baseConnection String
+    baseConnection String?
     project        Project[]
 }
 

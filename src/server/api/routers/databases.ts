@@ -49,13 +49,19 @@ export const database = {
         },
       });
 
+      const { id } = await ctx.db.rDSInstance.create({ data: {} });
+
       if (projectCount == 0) {
         await ctx.db.project.create({
-          data: { repository: input.repoUrl, createdById: ctx.session.user.id },
+          data: {
+            repository: input.repoUrl,
+            createdById: ctx.session.user.id,
+            rdsInstanceId: id,
+          },
         });
       }
 
-      const newDb = await ctx.db.branch.create({
+      await ctx.db.branch.create({
         data: {
           name: branch,
           projectRepository: input.repoUrl,
@@ -63,9 +69,7 @@ export const database = {
         },
       });
 
-      const databaseName = newDb.id;
-
-      const result = await CreateDatabase(databaseName, input.provider);
+      const result = await CreateDatabase(id, input.provider);
 
       return result;
     }),
@@ -73,12 +77,12 @@ export const database = {
   delete: protectedProcedure
     .input(z.object({ repoUrl: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const findResults = await ctx.db.rDSInstance.findFirstOrThrow({
+      const findResults = await ctx.db.project.findFirstOrThrow({
         select: {
-          id: true,
+          rdsInstanceId: true,
         },
         where: {
-          projectRepository: input.repoUrl,
+          repository: input.repoUrl,
         },
       });
 
@@ -92,7 +96,7 @@ export const database = {
 
       console.log(deleteResults);
 
-      const result = await DeleteDatabase(findResults.id);
+      const result = await DeleteDatabase(findResults.rdsInstanceId);
 
       return result;
     }),
@@ -100,18 +104,18 @@ export const database = {
   endpoint: protectedProcedure
     .input(z.object({ repoUrl: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const dbResults = await ctx.db.rDSInstance.findFirstOrThrow({
+      const dbResults = await ctx.db.project.findFirstOrThrow({
         select: {
-          id: true,
+          rdsInstanceId: true,
         },
         where: {
-          projectRepository: input.repoUrl,
+          repository: input.repoUrl,
         },
       });
 
       console.log(dbResults);
 
-      const result = await GetDatabaseConnection(dbResults.id);
+      const result = await GetDatabaseConnection(dbResults.rdsInstanceId);
       return {
         connection: result,
       };
@@ -120,36 +124,36 @@ export const database = {
   start: protectedProcedure
     .input(z.object({ repoUrl: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const dbResults = await ctx.db.rDSInstance.findFirstOrThrow({
+      const dbResults = await ctx.db.project.findFirstOrThrow({
         select: {
-          id: true,
+          rdsInstanceId: true,
         },
         where: {
-          projectRepository: input.repoUrl,
+          repository: input.repoUrl,
         },
       });
 
       console.log(dbResults);
 
-      const result = await StartDatabase(dbResults.id);
+      const result = await StartDatabase(dbResults.rdsInstanceId);
       return result;
     }),
 
   stop: protectedProcedure
     .input(z.object({ repoUrl: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const dbResults = await ctx.db.rDSInstance.findFirstOrThrow({
+      const dbResults = await ctx.db.project.findFirstOrThrow({
         select: {
-          id: true,
+          rdsInstanceId: true,
         },
         where: {
-          projectRepository: input.repoUrl,
+          repository: input.repoUrl,
         },
       });
 
       console.log(dbResults);
 
-      const result = await StopDatabase(dbResults.id);
+      const result = await StopDatabase(dbResults.rdsInstanceId);
       return result;
     }),
 };

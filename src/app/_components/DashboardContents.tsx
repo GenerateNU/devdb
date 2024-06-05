@@ -18,9 +18,6 @@ export default function DashboardItems() {
   });
 
   const mappedProjects = getProjectsQuery.data?.map((project) => {
-
-
-
     return {
       projectName: project.repository,
       route: project.repository,

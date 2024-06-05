@@ -81,7 +81,8 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             >
               {route.split("/").slice(-1)[0]}
             </Link>{" "}
-            - {branchesCount} branches - {databasesCount} databases
+            - {branchesCount} branches - {databasesCount} databases (
+            {instanceStatus})
           </span>
         </div>
         <div className="flex flex-row items-center">

@@ -4,6 +4,7 @@ import { api } from "~/trpc/react";
 import { useState } from "react";
 import ProjectList from "./ProjectList";
 import SearchInput from "./SearchInput";
+import Link from "next/link";
 
 export default function DashboardItems() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -22,6 +23,9 @@ export default function DashboardItems() {
   });
 
   const mappedProjects = projectsData?.map((project) => {
+    console.log(project.rdsInstanceId);
+    //const { status } = api.database.status.useQuery({ rdsInstanceId: project.rdsInstanceId })
+
     return {
       projectName: project.repository,
       route: project.repository,
@@ -51,7 +55,10 @@ export default function DashboardItems() {
         !error &&
         (!mappedProjects || mappedProjects.length === 0) && (
           <div className="text-center py-24 text-3xl">
-            No available projects
+            No available projects.{" "}
+            <Link className=" underline" href={"new-project"}>
+              Create a new project?
+            </Link>
           </div>
         )}
       {mappedProjects && (

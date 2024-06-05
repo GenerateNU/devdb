@@ -51,6 +51,27 @@ export async function DeleteDatabase(
   return result;
 }
 
+export async function GetDatabaseStatus(
+  instanceId: string,
+): Promise<string | undefined> {
+  const input = {
+    DBInstanceIdentifier: instanceId,
+  };
+  const command = new DescribeDBInstancesCommand(input);
+
+  const response = await client.send(command);
+
+  if (response.DBInstances) {
+    if (response.DBInstances?.length > 1) {
+      const status = response.DBInstances[0]?.DBInstanceStatus;
+      console.log(status);
+      return status;
+    }
+  }
+
+  return "Could not fetch";
+}
+
 export async function GetDatabaseConnection(
   instanceId: string | undefined,
 ): Promise<string | undefined> {

@@ -1,11 +1,12 @@
 import gitUrlParse from "git-url-parse";
 import { z } from "zod";
 
-import { protectedProcedure } from "~/server/api/trpc";
+import { protectedProcedure, publicProcedure } from "~/server/api/trpc";
 import {
   CreateDatabase,
   DeleteDatabase,
   GetDatabaseConnection,
+  GetDatabaseStatus,
   StartDatabase,
   StopDatabase,
 } from "~/server/external/aws";
@@ -164,5 +165,11 @@ export const database = {
 
       const result = await StopDatabase(dbResults.rdsInstanceId);
       return result;
+    }),
+
+  status: publicProcedure
+    .input(z.object({ rdsInstanceId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      return GetDatabaseStatus(input.rdsInstanceId);
     }),
 };

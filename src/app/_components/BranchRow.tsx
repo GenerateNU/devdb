@@ -19,7 +19,11 @@ export default function BranchRow(props: {
         </a>
       </span>
       <div className=" flex flex-row gap-4 w-1/5 justify-end">
-        {props.status === "No DB" ? <CreateButton /> : <DeleteButton />}
+        {props.status === "No DB" ? (
+          <CreateButton onClick={() => console.log("Create DB")} />
+        ) : (
+          <DeleteButton onClick={() => console.log("Delete DB")} />
+        )}
       </div>
     </div>
   );

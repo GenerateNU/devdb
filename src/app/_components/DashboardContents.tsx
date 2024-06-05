@@ -13,10 +13,6 @@ export default function DashboardItems() {
     setOpenProject(openProject === index ? null : index);
   };
 
-  const getProjectsQuery = api.database.get.useQuery({
-    searchTerms: searchTerm,
-  });
-
   const {
     data: projectsData,
     error,
@@ -31,7 +27,7 @@ export default function DashboardItems() {
       route: project.repository,
       branchesCount: project.branches.length,
       databasesCount: project.branches.length,
-      instanceStatus: "TODO",
+      instanceStatus: "Unknown",
       branches: project.branches.map((branch) => {
         return {
           creator: branch.createdBy.name ?? "Unknown",

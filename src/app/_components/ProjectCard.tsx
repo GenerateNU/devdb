@@ -2,7 +2,7 @@ import React from "react";
 import BranchRow from "./BranchRow";
 import Link from "next/link";
 import { DeleteButton, PauseButton, PlayButton } from "./Button";
-import { api } from "~/server/api/trpc";
+import { api } from "~/trpc/react";
 
 interface Branch {
   creator: string;
@@ -53,7 +53,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   return (
     <div className="bg-white text-black shadow-md">
       <div
-        className={` pr-8 py-3 flex flex-row justify-between ${isOpen ? "bg-generate-sw" : "bg-white"}`}
+        className={` pr-8 py-3 flex flex-row justify-between transition-colors duration-300 ${isOpen ? "bg-generate-sw" : "bg-white"}`}
       >
         <div className=" flex flex-row items-center">
           <button className=" px-12" onClick={onToggle}>

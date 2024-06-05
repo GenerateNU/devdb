@@ -22,33 +22,33 @@ export default function Button(props: {
   );
 }
 
-export function CreateButton() {
+export function CreateButton(props: { onClick: () => void }) {
   return (
-    <button>
+    <button onClick={props.onClick}>
       <img className=" px-4" src="./images/PlusIcon.svg" />
     </button>
   );
 }
 
-export function DeleteButton() {
+export function DeleteButton(props: { onClick: () => void }) {
   return (
-    <button>
+    <button onClick={props.onClick}>
       <img className=" px-4" src="./images/DeleteIcon.svg" />
     </button>
   );
 }
 
-export function PauseButton() {
+export function PauseButton(props: { onClick: () => void }) {
   return (
-    <button>
+    <button onClick={props.onClick}>
       <img className=" px-4" src="./images/PauseIcon.svg" />
     </button>
   );
 }
 
-export function PlayButton() {
+export function PlayButton(props: { onClick: () => void }) {
   return (
-    <button>
+    <button onClick={props.onClick}>
       <img className=" px-4" src="./images/PlayIcon.svg" />
     </button>
   );

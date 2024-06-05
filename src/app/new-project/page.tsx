@@ -20,6 +20,7 @@ const CreateProject: React.FC = () => {
   const handleCreateProject = () => {
     // Handle project creation logic here
     console.log("Creating project:", projectName);
+    setFeedbackMessage("Creating project....");
     createProjectMutation.mutate({
       repoUrl: projectName,
       provider: DBProvider.PostgreSQL,

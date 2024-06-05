@@ -1,5 +1,4 @@
 import React from "react";
-import Link from "next/link";
 import Image from "next/image";
 import GenerateLogo from "../../../public/images/SoftwareLight.svg";
 import Button from "./Button";

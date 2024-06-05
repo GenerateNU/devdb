@@ -29,6 +29,8 @@ export const env = createEnv({
     AWS_ACCESS_KEY_ID: z.string(),
     AWS_SECRET_ACCESS_KEY: z.string(),
     AWS_SESSION_TOKEN: z.string().optional(),
+    OPENAI_API_KEY: z.string(),
+    OPENAI_ORG_ID: z.string(),
   },
 
   /**
@@ -56,6 +58,8 @@ export const env = createEnv({
     AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
     AWS_SESSION_TOKEN: process.env.AWS_SESSION_TOKEN,
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+    OPENAI_ORG_ID: process.env.OPENAI_ORG_ID,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

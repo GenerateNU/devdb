@@ -3,19 +3,33 @@ import OpenAI from "openai";
 import { readFileSync } from "fs";
 
 const prisma = new PrismaClient();
-const openAiApiKey = process.env.OPENAI_API_SECRET_KEY;
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
 const openai = new OpenAI({
-  apiKey: openAiApiKey,
-  organization: "org-P089j4RF5ZRlf84V2IcFipaS",
+  apiKey: process.env.OPENAI_API_SECRET_KEY,
+  organization: process.env.OPENAI_ORG_ID,
 });
 
-async function generateDummyData(model: string, fields: string[]) {
+interface ChatResponse {
+  choices: Choice[];
+}
+
+interface Choice {
+  message: {
+    content: string;
+  };
+}
+
+async function generateDummyData(
+  model: string,
+  fields: string[],
+): Promise<unknown> {
   console.log(
     `Generating dummy data for model ${model} with fields: ${fields.join(", ")}`,
   );
   try {
-    const response = await openai.chat.completions.create({
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    const response: ChatResponse = (await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [
         {
@@ -26,16 +40,16 @@ async function generateDummyData(model: string, fields: string[]) {
         },
       ],
       max_tokens: 500,
-    });
+    })) as ChatResponse;
     console.log("Response", response.choices[0]?.message.content);
     return response.choices[0]?.message.content;
   } catch (error) {
     console.error("Failed to generate dummy data:", error);
-    return null;
+    throw error;
   }
 }
 
-async function dummyCreate() {
+async function dummyCreate(): Promise<unknown> {
   console.log("Creating dummy data...");
   const schema = readFileSync("./prisma/schema.prisma", "utf8");
   const models = schema.match(/model \w+ {[^}]+}/g);
@@ -53,16 +67,20 @@ async function dummyCreate() {
       console.log(fields);
 
       if (modelName && fields) {
-        const dummyData = await generateDummyData(modelName, fields);
+        const dummyData: unknown = await generateDummyData(modelName, fields);
         if (dummyData) {
           // Use type assertion to safely access the model
           const model = prisma[modelName as keyof typeof prisma];
-          if (model) {
-            // @ts-ignore
-            await prisma[modelName.toLocaleLowerCase()].create({
-              data: JSON.parse(dummyData),
+          if (model && prisma) {
+            const createCommand = prisma[
+              modelName.toLocaleLowerCase() as keyof typeof prisma
+            ] as { create: (data: unknown) => unknown };
+            const results: unknown = await createCommand.create({
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              data: JSON.parse(dummyData as string),
             });
             console.log(`Data inserted for model ${modelName}`);
+            return results;
           } else {
             console.error(
               `Model ${modelName} does not exist in Prisma Client.`,

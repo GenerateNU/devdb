@@ -7,7 +7,15 @@ import { DBProvider } from "~/server/external/types";
 
 const CreateProject: React.FC = () => {
   const [projectName, setProjectName] = useState("");
-  const createProjectMutation = api.database.create.useMutation();
+  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+  const createProjectMutation = api.database.create.useMutation({
+    onSuccess: () => {
+      setFeedbackMessage("Project created successfully!");
+    },
+    onError: () => {
+      setFeedbackMessage("Failed to create project.");
+    },
+  });
 
   const handleCreateProject = () => {
     // Handle project creation logic here
@@ -38,6 +46,9 @@ const CreateProject: React.FC = () => {
             Create Project
           </button>
         </div>
+        {feedbackMessage && (
+          <div className="mt-4 text-lg text-center">{feedbackMessage}</div>
+        )}
       </div>
     </>
   );

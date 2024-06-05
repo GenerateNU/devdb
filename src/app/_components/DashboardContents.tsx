@@ -17,7 +17,15 @@ export default function DashboardItems() {
     searchTerms: searchTerm,
   });
 
-  const mappedProjects = getProjectsQuery.data?.map((project) => {
+  const {
+    data: projectsData,
+    error,
+    isLoading,
+  } = api.database.get.useQuery({
+    searchTerms: searchTerm,
+  });
+
+  const mappedProjects = projectsData?.map((project) => {
     return {
       projectName: project.repository,
       route: project.repository,
@@ -41,6 +49,15 @@ export default function DashboardItems() {
   return (
     <div className="flex flex-col gap-8">
       <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+      {isLoading && <div>Loading...</div>}
+      {error && <div>Error: {error.message}</div>}
+      {!isLoading &&
+        !error &&
+        (!mappedProjects || mappedProjects.length === 0) && (
+          <div className="text-center py-24 text-3xl">
+            No available projects
+          </div>
+        )}
       {mappedProjects && (
         <ProjectList
           projects={mappedProjects}

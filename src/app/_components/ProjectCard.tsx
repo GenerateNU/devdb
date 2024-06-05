@@ -2,6 +2,7 @@ import React from "react";
 import BranchRow from "./BranchRow";
 import Link from "next/link";
 import { DeleteButton, PauseButton, PlayButton } from "./Button";
+import { api } from "~/server/api/trpc";
 
 interface Branch {
   creator: string;
@@ -34,6 +35,21 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   isOpen,
   onToggle,
 }) => {
+  const pauseProjectMutation = api.database.stop.useMutation();
+  const startProjectMutation = api.database.start.useMutation();
+  const deleteProjectMutation = api.database.delete.useMutation();
+
+  const handlePause = () => {
+    pauseProjectMutation.mutate({ repoUrl: projectName });
+  };
+
+  const handleStart = () => {
+    startProjectMutation.mutate({ repoUrl: projectName });
+  };
+
+  const handleDelete = () => {
+    deleteProjectMutation.mutate({ repoUrl: projectName });
+  };
   return (
     <div className="bg-white text-black shadow-md">
       <div
@@ -68,9 +84,13 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             - {branchesCount} branches - {databasesCount} databases
           </span>
         </div>
-        <div className=" flex flex-row items-center">
-          {instanceStatus === "Stopped" ? <PlayButton /> : <PauseButton />}
-          <DeleteButton />
+        <div className="flex flex-row items-center">
+          {instanceStatus === "Stopped" ? (
+            <PlayButton onClick={handleStart} />
+          ) : (
+            <PauseButton onClick={handlePause} />
+          )}
+          <DeleteButton onClick={handleDelete} />
         </div>
       </div>
       <div

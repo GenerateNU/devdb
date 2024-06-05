@@ -17,7 +17,7 @@ interface ProjectCardProps {
   instanceStatus: string;
   branches: Branch[];
   creator: string;
-  createdOn: string;
+  createdOn: Date;
   isOpen: boolean;
   onToggle: () => void;
 }
@@ -88,7 +88,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         </div>
         <div className="flex flex-col gap-3 py-3 px-12 shadow-inner bg-white">
           <p>Created by: {creator}</p>
-          <p>Created on: {createdOn}</p>
+          <p>Created on: {createdOn.toString()}</p>
         </div>
       </div>
     </div>

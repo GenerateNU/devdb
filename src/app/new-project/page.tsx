@@ -2,13 +2,17 @@
 
 import React, { useState } from "react";
 import Navbar from "../_components/NavBar";
+import { api } from "~/trpc/react";
+import { DBProvider } from "~/server/external/types";
 
 const CreateProject: React.FC = () => {
   const [projectName, setProjectName] = useState("");
+  const createProjectMutation = api.database.create.useMutation()
 
   const handleCreateProject = () => {
     // Handle project creation logic here
     console.log("Creating project:", projectName);
+    createProjectMutation.mutate({ repoUrl: projectName, provider: DBProvider.PostgreSQL })
   };
 
   return (

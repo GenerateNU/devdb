@@ -14,7 +14,7 @@ interface ProjectListProps {
       status: string;
     }>;
     creator: string;
-    createdOn: string;
+    createdOn: Date;
   }>;
   openProject: number | null;
   handleToggle: (index: number) => void;

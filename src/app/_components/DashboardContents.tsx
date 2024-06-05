@@ -18,21 +18,24 @@ export default function DashboardItems() {
   });
 
   const mappedProjects = getProjectsQuery.data?.map((project) => {
+
+
+
     return {
-      projectName: project.repo,
-      route: project.repo,
-      branchesCount: project.instances.length,
-      databasesCount: project.instances.length,
+      projectName: project.repository,
+      route: project.repository,
+      branchesCount: project.branches.length,
+      databasesCount: project.branches.length,
       instanceStatus: "TODO",
-      branches: project.instances.map((branch) => {
+      branches: project.branches.map((branch) => {
         return {
-          creator: "TODO",
-          name: branch.branch,
+          creator: branch.createdBy.name ?? "Unknown",
+          name: branch.name,
           status: "TODO: REMOVE",
         };
       }),
-      creator: "TODO",
-      createdOn: "TODO",
+      creator: project.createdBy.name ?? "Unknown",
+      createdOn: project.createdAt,
     };
   });
 

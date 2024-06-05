@@ -14,18 +14,6 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    createdBy   User   @relation(fields: [createdById], references: [id])
-    createdById String
-
-    @@index([name])
-}
-
 // Necessary for Next auth
 model Account {
     id                       String  @id @default(cuid())
@@ -55,16 +43,16 @@ model Session {
 }
 
 model User {
-    id            String     @id @default(cuid())
+    id            String    @id @default(cuid())
     name          String?
-    email         String?    @unique
+    email         String?   @unique
     emailVerified DateTime?
     image         String?
     accounts      Account[]
     sessions      Session[]
-    posts         Post[]
-    Database      Database[]
-    verified      Boolean    @default(false)
+    branches      Branch[]
+    projects      Project[]
+    verified      Boolean   @default(false)
 }
 
 model VerificationToken {
@@ -76,22 +64,36 @@ model VerificationToken {
 }
 
 model Project {
-    repo      String
-    instances Database[]
+    repository String
+    branches   Branch[]
 
-    @@unique([repo])
-}
-
-model Database {
-    id        String   @id @default(cuid())
-    branch    String
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    createdBy   User?   @relation(fields: [createdById], references: [id], onDelete: Cascade, onUpdate: Cascade)
-    createdById String?
-    project     Project @relation(fields: [projectRepo], references: [repo], onDelete: Cascade, onUpdate: Cascade)
-    projectRepo String
+    createdBy     User        @relation(fields: [createdById], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    createdById   String
+    rdsInstance   RDSInstance @relation(fields: [rdsInstanceId], references: [id])
+    rdsInstanceId String
 
-    @@unique([projectRepo, branch])
+    @@unique([repository])
+}
+
+model RDSInstance {
+    id             String    @id @default(cuid())
+    baseConnection String
+    project        Project[]
+}
+
+model Branch {
+    id        String   @id @default(cuid())
+    name      String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    createdBy         User    @relation(fields: [createdById], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    createdById       String
+    project           Project @relation(fields: [projectRepository], references: [repository], onDelete: Cascade, onUpdate: Cascade)
+    projectRepository String
+
+    @@unique([projectRepository, name])
 }

@@ -1,5 +1,3 @@
-"use clien";
-
 import React from "react";
 import ProjectCard from "./ProjectCard";
 
@@ -9,6 +7,7 @@ interface ProjectListProps {
     route: string;
     branchesCount: number;
     databasesCount: number;
+    instanceStatus: string;
     branches: Array<{
       creator: string;
       name: string;
@@ -35,6 +34,7 @@ const ProjectList: React.FC<ProjectListProps> = ({
           route={project.route}
           branchesCount={project.branchesCount}
           databasesCount={project.databasesCount}
+          instanceStatus={project.instanceStatus}
           branches={project.branches}
           creator={project.creator}
           createdOn={project.createdOn}

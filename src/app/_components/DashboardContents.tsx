@@ -21,6 +21,7 @@ export default function DashboardItems() {
       route: "website",
       branchesCount: 1,
       databasesCount: 0,
+      instanceStatus: "Running",
       branches: [
         {
           creator: "natesawant",
@@ -36,6 +37,7 @@ export default function DashboardItems() {
       route: "routes",
       branchesCount: 3,
       databasesCount: 2,
+      instanceStatus: "Stopped",
       branches: [
         {
           creator: "natesawant",
@@ -43,7 +45,7 @@ export default function DashboardItems() {
           status: "Running",
         },
         {
-          creator: "natesawant",
+          creator: "diffuser",
           name: "stopped-example",
           status: "Stopped",
         },

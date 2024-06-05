@@ -21,3 +21,35 @@ export default function Button(props: {
     </Link>
   );
 }
+
+export function CreateButton() {
+  return (
+    <button>
+      <img className=" px-4" src="./images/PlusIcon.svg" />
+    </button>
+  );
+}
+
+export function DeleteButton() {
+  return (
+    <button>
+      <img className=" px-4" src="./images/DeleteIcon.svg" />
+    </button>
+  );
+}
+
+export function PauseButton() {
+  return (
+    <button>
+      <img className=" px-4" src="./images/PauseIcon.svg" />
+    </button>
+  );
+}
+
+export function PlayButton() {
+  return (
+    <button>
+      <img className=" px-4" src="./images/PlayIcon.svg" />
+    </button>
+  );
+}

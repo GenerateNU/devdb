@@ -1,34 +1,4 @@
-function CreateButton() {
-  return (
-    <button>
-      <img className=" px-4" src="./images/PlusIcon.svg" />
-    </button>
-  );
-}
-
-function DeleteButton() {
-  return (
-    <button>
-      <img className=" px-4" src="./images/DeleteIcon.svg" />
-    </button>
-  );
-}
-
-function PauseButton() {
-  return (
-    <button>
-      <img className=" px-4" src="./images/PauseIcon.svg" />
-    </button>
-  );
-}
-
-function PlayButton() {
-  return (
-    <button>
-      <img className=" px-4" src="./images/PlayIcon.svg" />
-    </button>
-  );
-}
+import { CreateButton, DeleteButton } from "./Button";
 
 export default function BranchRow(props: {
   creator: string;
@@ -36,26 +6,20 @@ export default function BranchRow(props: {
   status: string;
 }) {
   const actionLabel =
-    status === "No DB" ? "Create Database" : "Connect to Database";
+    props.status === "No DB" ? "Create Database" : "Connect to Database";
 
   return (
     <div className="flex justify-between items-center py-3 pl-12 pr-8 shadow-inner">
-      <span>
+      <span className="flex flex-row w-3/5">
         {props.creator} / {props.name}
       </span>
-      <span>
-        {props.status} /{" "}
-        <a href="#" className="text-blue-500 hover:underline">
+      <span className=" w-2/5">
+        <a href="#" className="hover:underline">
           {actionLabel}
         </a>
       </span>
-      <div className=" flex flex-row gap-4">
-        {props.status === "No DB" && <CreateButton />}
-        {props.status === "Stopped" && <PlayButton />}
-        {props.status === "Running" && <PauseButton />}
-        {(props.status === "Running" || props.status === "Stopped") && (
-          <DeleteButton />
-        )}
+      <div className=" flex flex-row gap-4 w-1/5 justify-end">
+        {props.status === "No DB" ? <CreateButton /> : <DeleteButton />}
       </div>
     </div>
   );

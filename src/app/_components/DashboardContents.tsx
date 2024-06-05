@@ -1,14 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
-import Navbar from "../_components/NavBar";
-import ProjectCard from "../_components/projectcard";
-import SearchInput from "../_components/SearchInput";
-import ProjectList from "../_components/ProjectList";
+import { useState } from "react";
+import ProjectList from "./ProjectList";
+import SearchInput from "./SearchInput";
 
-const Dashboard: React.FC = () => {
+export default function DashboardItems() {
   const [searchTerm, setSearchTerm] = useState("");
   const [openProject, setOpenProject] = useState<number | null>(null);
+
+  const handleToggle = (index: number) => {
+    setOpenProject(openProject === index ? null : index);
+  };
 
   const projects = [
     {
@@ -57,37 +59,14 @@ const Dashboard: React.FC = () => {
     },
   ];
 
-  const handleToggle = (index: number) => {
-    setOpenProject(openProject === index ? null : index);
-  };
-
-  const filteredProjects = projects.filter(
-    (project) =>
-      project.projectName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.route.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
-
   return (
-    <>
-      <Navbar />
-
-      <div className="min-h-screen min-x-screen">
-        <div className="px-24 py-12 min-x-screen min-h-screen bg-gradient-to-b from-generate-dark to-black from-33 text-white">
-          <div className="flex flex-col gap-4">
-            <SearchInput
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-            />
-            <ProjectList
-              projects={filteredProjects}
-              openProject={openProject}
-              handleToggle={handleToggle}
-            />
-          </div>
-        </div>
-      </div>
-    </>
+    <div className="flex flex-col gap-4">
+      <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+      <ProjectList
+        projects={projects}
+        openProject={openProject}
+        handleToggle={handleToggle}
+      />
+    </div>
   );
-};
-
-export default Dashboard;
+}

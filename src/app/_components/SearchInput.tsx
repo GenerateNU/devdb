@@ -15,13 +15,18 @@ const SearchInput: React.FC<SearchInputProps> = ({
 }) => {
   return (
     <div className="flex flex-row bg-white text-gray-700 pl-12 p-2 gap-4">
-      <Image src={searchIcon} alt="Search Icon" width={24} height={24} />
+      <Image
+        src={searchIcon as string}
+        alt="Search Icon"
+        width={24}
+        height={24}
+      />
       <input
         type="text"
         placeholder="Search projects or databases"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        className="p-2 w-auto"
+        className="p-2 w-full text-black placeholder:text-input-text"
       />
     </div>
   );

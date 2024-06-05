@@ -1,4 +1,5 @@
 import React from "react";
+import BranchRow from "./BranchRow";
 
 interface Branch {
   name: string;
@@ -31,9 +32,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   onToggle,
 }) => {
   return (
-    <div className="bg-white text-black rounded-xl shadow-md mb-4">
+    <div className="bg-white text-black shadow-md mb-4">
       <div
-        className={`p-4 flex justify-between items-center ${isOpen ? "bg-yellow-500" : ""}`}
+        className={`p-4 flex justify-between items-center drop-shadow ${isOpen ? " bg-generate-sw" : ""}`}
         onClick={onToggle}
       >
         <div className="flex items-center">
@@ -53,7 +54,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
               />
             </svg>
           </button>
-          <span>
+          <span className=" select-none">
             {projectName} / {route} - {branchesCount} branches -{" "}
             {databasesCount} databases
           </span>
@@ -76,55 +77,19 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         </button>
       </div>
       {isOpen && (
-        <div className="p-4 bg-gray-100 rounded-b-xl">
-          <div className="space-y-2">
+        <div className="bg-gray-100 rounded-b-xl">
+          <div className="bg-project-row">
             {branches.map((branch, index) => (
-              <div key={index} className="flex justify-between items-center">
-                <span>
-                  {branch.name} / {branch.status}
-                </span>
-                <span>
-                  {branch.status} /{" "}
-                  <a href="#" className="text-blue-500 hover:underline">
-                    {branch.actionLabel}
-                  </a>
-                </span>
-                <button>
-                  <svg
-                    className="w-6 h-6 text-gray-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d={`M${branch.action}`}
-                    />
-                  </svg>
-                </button>
-                <button>
-                  <svg
-                    className="w-6 h-6 text-red-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
+              <BranchRow
+                key={index}
+                name={branch.name}
+                status={branch.status}
+                action={branch.action}
+                actionLabel={branch.actionLabel}
+              />
             ))}
           </div>
-          <div className="mt-4">
+          <div className="flex flex-col gap-3 py-3 px-12 shadow-inner">
             <p>Created by: {creator}</p>
             <p>Created on: {createdOn}</p>
           </div>

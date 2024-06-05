@@ -1,7 +1,7 @@
 "use clien";
 
 import React from "react";
-import ProjectCard from "../_components/projectcard";
+import ProjectCard from "./ProjectCard";
 
 interface ProjectListProps {
   projects: Array<{

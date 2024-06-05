@@ -15,18 +15,18 @@ const CreateProject: React.FC = () => {
     <>
       <Navbar />
       <div className="flex flex-col items-center min-h-screen py-40  bg-gradient-to-b from-generate-dark to-black text-white">
-        <h1 className="text-6xl mb-12 ">Create New Project</h1>
+        <h1 className="text-4xl mb-12 ">Create New Project</h1>
         <div className="flex items-center space-x-4">
           <input
             type="text"
-            placeholder="Project Name"
+            placeholder="Enter repository URL"
             value={projectName}
             onChange={(e) => setProjectName(e.target.value)}
-            className="px-12 py-3 rounded bg-white text-gray-900"
+            className="px-12 py-3 bg-white text-gray-900 text-black placeholder:text-input-text"
           />
           <button
             onClick={handleCreateProject}
-            className=" bg-generate-sw text-black font-bold py-3 px-12 rounded hover:bg-yellow-600"
+            className=" bg-generate-sw text-black font-bold py-3 px-12 hover:bg-white"
           >
             Create Project
           </button>

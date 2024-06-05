@@ -11,7 +11,9 @@ const openai = new OpenAI({
 });
 
 async function generateDummyData(model: string, fields: string[]) {
-  console.log(`Generating dummy data for model ${model} with fields: ${fields.join(", ")}`);
+  console.log(
+    `Generating dummy data for model ${model} with fields: ${fields.join(", ")}`,
+  );
   try {
     const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
@@ -57,7 +59,9 @@ async function dummyCreate() {
           const model = prisma[modelName as keyof typeof prisma];
           if (model) {
             // @ts-ignore
-            await prisma[modelName.toLocaleLowerCase()].create({ data: JSON.parse(dummyData) });
+            await prisma[modelName.toLocaleLowerCase()].create({
+              data: JSON.parse(dummyData),
+            });
             console.log(`Data inserted for model ${modelName}`);
           } else {
             console.error(

@@ -1,3 +1,4 @@
+import gitUrlParse from "git-url-parse";
 import { z } from "zod";
 
 import { protectedProcedure } from "~/server/api/trpc";
@@ -11,6 +12,40 @@ import {
 import { DBProvider } from "~/server/external/types";
 
 export const database = {
+  get: protectedProcedure
+    .input(z.object({ searchTerms: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const searchResults = ctx.db.project.findMany({
+        include: {
+          createdBy: {
+            select: {
+              name: true,
+            },
+          },
+          branches: {
+            include: {
+              createdBy: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+        where: {
+          ...(input.searchTerms !== ""
+            ? {
+                repositoryName: {
+                  search: input.searchTerms,
+                },
+              }
+            : {}),
+        },
+      });
+
+      return searchResults;
+    }),
+
   create: protectedProcedure
     .input(
       z.object({ repoUrl: z.string(), provider: z.nativeEnum(DBProvider) }),
@@ -18,28 +53,32 @@ export const database = {
     .mutation(async ({ ctx, input }) => {
       const branch = "main";
 
-      const projectCount = await ctx.db.project.count({
-        where: {
-          repo: input.repoUrl,
-        },
-      });
+      const parsedUrl = gitUrlParse(input.repoUrl);
 
-      if (projectCount == 0) {
-        await ctx.db.project.create({
-          data: { repo: input.repoUrl },
-        });
-      }
+      const { owner, name, href } = parsedUrl;
 
-      const newDb = await ctx.db.database.create({
+      const { id } = await ctx.db.rDSInstance.create({ data: {} });
+
+      await ctx.db.project.create({
         data: {
-          branch: branch,
-          projectRepo: input.repoUrl,
+          owner: href.split("/").slice(0, -1).join("/"),
+          ownerName: owner,
+          repository: href,
+          repositoryName: name,
+          createdById: ctx.session.user.id,
+          rdsInstanceId: id,
         },
       });
 
-      const databaseName = newDb.id;
+      await ctx.db.branch.create({
+        data: {
+          name: branch,
+          projectRepository: input.repoUrl,
+          createdById: ctx.session.user.id,
+        },
+      });
 
-      const result = await CreateDatabase(databaseName, input.provider);
+      const result = await CreateDatabase(id, input.provider);
 
       return result;
     }),
@@ -47,26 +86,26 @@ export const database = {
   delete: protectedProcedure
     .input(z.object({ repoUrl: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const findResults = await ctx.db.database.findFirstOrThrow({
+      const findResults = await ctx.db.project.findFirstOrThrow({
         select: {
-          id: true,
+          rdsInstanceId: true,
         },
         where: {
-          projectRepo: input.repoUrl,
+          repository: input.repoUrl,
         },
       });
 
       console.log(findResults);
 
-      const deleteResults = await ctx.db.database.delete({
+      const deleteResults = await ctx.db.project.delete({
         where: {
-          id: findResults.id,
+          repository: input.repoUrl,
         },
       });
 
       console.log(deleteResults);
 
-      const result = await DeleteDatabase(findResults.id);
+      const result = await DeleteDatabase(findResults.rdsInstanceId);
 
       return result;
     }),
@@ -74,18 +113,18 @@ export const database = {
   endpoint: protectedProcedure
     .input(z.object({ repoUrl: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const dbResults = await ctx.db.database.findFirstOrThrow({
+      const dbResults = await ctx.db.project.findFirstOrThrow({
         select: {
-          id: true,
+          rdsInstanceId: true,
         },
         where: {
-          projectRepo: input.repoUrl,
+          repository: input.repoUrl,
         },
       });
 
       console.log(dbResults);
 
-      const result = await GetDatabaseConnection(dbResults.id);
+      const result = await GetDatabaseConnection(dbResults.rdsInstanceId);
       return {
         connection: result,
       };
@@ -94,36 +133,36 @@ export const database = {
   start: protectedProcedure
     .input(z.object({ repoUrl: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const dbResults = await ctx.db.database.findFirstOrThrow({
+      const dbResults = await ctx.db.project.findFirstOrThrow({
         select: {
-          id: true,
+          rdsInstanceId: true,
         },
         where: {
-          projectRepo: input.repoUrl,
+          repository: input.repoUrl,
         },
       });
 
       console.log(dbResults);
 
-      const result = await StartDatabase(dbResults.id);
+      const result = await StartDatabase(dbResults.rdsInstanceId);
       return result;
     }),
 
   stop: protectedProcedure
     .input(z.object({ repoUrl: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const dbResults = await ctx.db.database.findFirstOrThrow({
+      const dbResults = await ctx.db.project.findFirstOrThrow({
         select: {
-          id: true,
+          rdsInstanceId: true,
         },
         where: {
-          projectRepo: input.repoUrl,
+          repository: input.repoUrl,
         },
       });
 
       console.log(dbResults);
 
-      const result = await StopDatabase(dbResults.id);
+      const result = await StopDatabase(dbResults.rdsInstanceId);
       return result;
     }),
 };

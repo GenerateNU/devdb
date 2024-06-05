@@ -28,6 +28,7 @@
     "@types/inquirer": "^9.0.7",
     "@types/parse-git-config": "^3.0.4",
     "@types/parse-github-url": "^1.0.3",
+    "autoprefixer": "^10.4.19",
     "axios": "^1.7.2",
     "execa": "^9.1.0",
     "git-url-parse": "^14.0.0",

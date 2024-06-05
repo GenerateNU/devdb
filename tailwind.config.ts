@@ -13,16 +13,17 @@ export default {
       current: "currentColor",
       white: "#ffffff",
       black: "#000000",
+      gray: "#EEEEEE",
       generate: {
         DEFAULT: "#187DFF",
         dark: "#092A55",
-        sw: "#FFBF3C",
+        sw: { light: "#ffdc88", DEFAULT: "#FFBF3C", dark: "#ffac20" },
       },
       project: {
         row: "#EEEEEE",
       },
       input: {
-        text: "#BBBBBB",
+        text: "#999999",
       },
     },
     gradientColorStopPositions: {

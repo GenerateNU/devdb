@@ -51,27 +51,6 @@ export async function DeleteDatabase(
   return result;
 }
 
-export async function GetInstanceStatus(instanceId: string): Promise<string> {
-  const input = {
-    // DescribeDBInstancesMessage
-    DBInstanceIdentifier: instanceId,
-  };
-  const command = new DescribeDBInstancesCommand(input);
-
-  const response = await client.send(command);
-
-  if (response.DBInstances) {
-    if (
-      response.DBInstances?.length > 0 &&
-      response.DBInstances[0]?.DBInstanceStatus
-    ) {
-      return response.DBInstances[0]?.DBInstanceStatus;
-    }
-  }
-
-  return "Unknown";
-}
-
 export async function GetDatabaseConnection(
   instanceId: string | undefined,
 ): Promise<string | undefined> {

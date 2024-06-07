@@ -1,3 +1,4 @@
+import { PrismaClient } from "@prisma/client";
 import gitUrlParse from "git-url-parse";
 import { z } from "zod";
 
@@ -15,8 +16,20 @@ import { DBProvider } from "~/server/external/types";
 export const database = {
   get: protectedProcedure
     .input(z.object({ searchTerms: z.string() }))
-    .query(async ({ ctx, input }) => {
-      const searchResults = await ctx.db.project.findMany({
+    .query(async ({ input }) => {
+      const prisma = new PrismaClient().$extends({
+        result: {
+          project: {
+            status: {
+              compute(project) {
+                return project.rdsInstanceId ? "Unknown" : "No Database";
+              },
+            },
+          },
+        },
+      });
+
+      const searchResults = await prisma.project.findMany({
         include: {
           createdBy: {
             select: {
@@ -44,21 +57,16 @@ export const database = {
         },
       });
 
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      const statusIncluded = searchResults.map(async (project) => {
-        const status = project.rdsInstanceId
-          ? await GetDatabaseStatus(project.rdsInstanceId)
-          : "No RDS Instance";
-
-        const newProject: typeof project & { status: string } = {
-          ...project,
-          status: status,
-        };
-
-        return newProject;
-      });
-
-      return searchResults;
+      return await Promise.all(
+        searchResults.map(async (project) => {
+          return project.rdsInstanceId
+            ? {
+                ...project,
+                status: await GetDatabaseStatus(project.rdsInstanceId),
+              }
+            : project;
+        }),
+      );
     }),
 
   create: protectedProcedure

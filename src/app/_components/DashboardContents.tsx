@@ -32,7 +32,7 @@ export default function DashboardItems() {
       route: project.repository,
       branchesCount: project.branches.length,
       databasesCount: project.branches.length,
-      instanceStatus: "TODO",
+      instanceStatus: project.status,
       branches: project.branches.map((branch) => {
         return {
           creator: branch.createdBy.name ?? "Unknown",

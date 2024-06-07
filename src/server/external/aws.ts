@@ -63,7 +63,7 @@ export async function GetDatabaseStatus(instanceId: string): Promise<string> {
   const response = await client.send(command);
 
   if (response.DBInstances) {
-    if (response.DBInstances?.length > 1) {
+    if (response.DBInstances?.length > 0) {
       const status = response.DBInstances[0]?.DBInstanceStatus;
       console.log(status);
       return status ?? "Unknown";

@@ -46,7 +46,9 @@ export const database = {
 
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       const statusIncluded = searchResults.map(async (project) => {
-        const status = await GetDatabaseStatus(project.rdsInstanceId);
+        const status = project.rdsInstanceId
+          ? await GetDatabaseStatus(project.rdsInstanceId)
+          : "No RDS Instance";
 
         const newProject: typeof project & { status: string } = {
           ...project,
@@ -110,23 +112,25 @@ export const database = {
 
       console.log(findResults);
 
-      const deleteResults = await ctx.db.project.delete({
+      const { rdsInstanceId } = await ctx.db.project.delete({
         where: {
           repository: input.repoUrl,
         },
       });
 
-      console.log(deleteResults);
+      console.log(rdsInstanceId);
 
-      const result = await DeleteDatabase(findResults.rdsInstanceId);
-
-      return result;
+      if (rdsInstanceId) {
+        return await DeleteDatabase(rdsInstanceId);
+      } else {
+        throw Error("No RDS Instance found, cannot delete");
+      }
     }),
 
   endpoint: protectedProcedure
     .input(z.object({ repoUrl: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const dbResults = await ctx.db.project.findFirstOrThrow({
+      const { rdsInstanceId } = await ctx.db.project.findFirstOrThrow({
         select: {
           rdsInstanceId: true,
         },
@@ -135,18 +139,19 @@ export const database = {
         },
       });
 
-      console.log(dbResults);
+      console.log(rdsInstanceId);
 
-      const result = await GetDatabaseConnection(dbResults.rdsInstanceId);
-      return {
-        connection: result,
-      };
+      if (rdsInstanceId) {
+        return await GetDatabaseConnection(rdsInstanceId);
+      } else {
+        throw Error("No RDS Instance found, cannot start");
+      }
     }),
 
   start: protectedProcedure
     .input(z.object({ repoUrl: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const dbResults = await ctx.db.project.findFirstOrThrow({
+      const { rdsInstanceId } = await ctx.db.project.findFirstOrThrow({
         select: {
           rdsInstanceId: true,
         },
@@ -155,16 +160,19 @@ export const database = {
         },
       });
 
-      console.log(dbResults);
+      console.log(rdsInstanceId);
 
-      const result = await StartDatabase(dbResults.rdsInstanceId);
-      return result;
+      if (rdsInstanceId) {
+        return await StartDatabase(rdsInstanceId);
+      } else {
+        throw Error("No RDS Instance found, cannot start");
+      }
     }),
 
   stop: protectedProcedure
     .input(z.object({ repoUrl: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const dbResults = await ctx.db.project.findFirstOrThrow({
+      const { rdsInstanceId } = await ctx.db.project.findFirstOrThrow({
         select: {
           rdsInstanceId: true,
         },
@@ -173,10 +181,13 @@ export const database = {
         },
       });
 
-      console.log(dbResults);
+      console.log(rdsInstanceId);
 
-      const result = await StopDatabase(dbResults.rdsInstanceId);
-      return result;
+      if (rdsInstanceId) {
+        return await StopDatabase(rdsInstanceId);
+      } else {
+        throw Error("No RDS Instance found, cannot stop");
+      }
     }),
 
   status: publicProcedure

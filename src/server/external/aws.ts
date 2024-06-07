@@ -19,7 +19,7 @@ import type { DBProvider } from "./types";
 
 const client = new RDSClient({ region: "us-east-1" });
 
-export async function CreateDatabase(
+export async function CreateRDSInstance(
   name: string,
   provider: DBProvider,
 ): Promise<CreateDBInstanceCommandOutput> {
@@ -38,7 +38,7 @@ export async function CreateDatabase(
   return result;
 }
 
-export async function DeleteDatabase(
+export async function DeleteRDSInstance(
   name: string,
 ): Promise<DeleteDBInstanceCommandOutput> {
   const commandInput: DeleteDBInstanceCommandInput = {
@@ -54,7 +54,9 @@ export async function DeleteDatabase(
   return result;
 }
 
-export async function GetDatabaseStatus(instanceId: string): Promise<string> {
+export async function GetRDSInstanceStatus(
+  instanceId: string,
+): Promise<string> {
   const input = {
     DBInstanceIdentifier: instanceId,
   };
@@ -73,11 +75,10 @@ export async function GetDatabaseStatus(instanceId: string): Promise<string> {
   return "Could not fetch";
 }
 
-export async function GetDatabaseConnection(
+export async function GetRDSConnectionURL(
   instanceId: string | undefined,
 ): Promise<string | undefined> {
   const input = {
-    // DescribeDBInstancesMessage
     DBInstanceIdentifier: instanceId,
   };
   const command = new DescribeDBInstancesCommand(input);
@@ -92,7 +93,7 @@ export async function GetDatabaseConnection(
         const provider = response.DBInstances[0].Engine;
         const username = "dev";
         const password = "devpassword123";
-        const awsEndpoint = response.DBInstances[0].Endpoint?.Address; //"test-database.cw6wi7ttmo36.us-east-1.rds.amazonaws.com";
+        const awsEndpoint = response.DBInstances[0].Endpoint?.Address;
         const port = response.DBInstances[0].Endpoint?.Port;
         const dbName = response.DBInstances[0].DBName;
 
@@ -114,7 +115,7 @@ export async function GetDatabaseConnection(
   }
 }
 
-export async function StartDatabase(
+export async function StartRDSInstance(
   name: string,
 ): Promise<StartDBInstanceResult> {
   const input: StartDBInstanceCommandInput = {
@@ -126,7 +127,7 @@ export async function StartDatabase(
   return result;
 }
 
-export async function StopDatabase(
+export async function StopRDSInstance(
   name: string,
 ): Promise<StopDBInstanceResult> {
   const input: StopDBInstanceCommandInput = {

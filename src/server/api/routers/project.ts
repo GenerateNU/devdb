@@ -1,23 +1,22 @@
-import { PrismaClient } from "@prisma/client";
 import gitUrlParse from "git-url-parse";
 import { z } from "zod";
 
 import { protectedProcedure, publicProcedure } from "~/server/api/trpc";
 import {
-  CreateDatabase,
-  DeleteDatabase,
-  GetDatabaseConnection,
-  GetDatabaseStatus,
-  StartDatabase,
-  StopDatabase,
+  CreateRDSInstance,
+  DeleteRDSInstance,
+  GetRDSConnectionURL,
+  GetRDSInstanceStatus,
+  StartRDSInstance,
+  StopRDSInstance,
 } from "~/server/external/aws";
 import { DBProvider } from "~/server/external/types";
 
-export const database = {
+export const project = {
   get: protectedProcedure
     .input(z.object({ searchTerms: z.string() }))
-    .query(async ({ input }) => {
-      const prisma = new PrismaClient().$extends({
+    .query(async ({ ctx, input }) => {
+      const prisma = ctx.db.$extends({
         result: {
           project: {
             status: {
@@ -62,7 +61,7 @@ export const database = {
           return project.rdsInstanceId
             ? {
                 ...project,
-                status: await GetDatabaseStatus(project.rdsInstanceId),
+                status: await GetRDSInstanceStatus(project.rdsInstanceId),
               }
             : project;
         }),
@@ -101,7 +100,7 @@ export const database = {
         },
       });
 
-      const result = await CreateDatabase(id, input.provider);
+      const result = await CreateRDSInstance(id, input.provider);
 
       return result;
     }),
@@ -129,7 +128,7 @@ export const database = {
       console.log(rdsInstanceId);
 
       if (rdsInstanceId) {
-        return await DeleteDatabase(rdsInstanceId);
+        return await DeleteRDSInstance(rdsInstanceId);
       } else {
         throw Error("No RDS Instance found, cannot delete");
       }
@@ -150,7 +149,7 @@ export const database = {
       console.log(rdsInstanceId);
 
       if (rdsInstanceId) {
-        return await GetDatabaseConnection(rdsInstanceId);
+        return await GetRDSConnectionURL(rdsInstanceId);
       } else {
         throw Error("No RDS Instance found, cannot start");
       }
@@ -171,7 +170,7 @@ export const database = {
       console.log(rdsInstanceId);
 
       if (rdsInstanceId) {
-        return await StartDatabase(rdsInstanceId);
+        return await StartRDSInstance(rdsInstanceId);
       } else {
         throw Error("No RDS Instance found, cannot start");
       }
@@ -192,7 +191,7 @@ export const database = {
       console.log(rdsInstanceId);
 
       if (rdsInstanceId) {
-        return await StopDatabase(rdsInstanceId);
+        return await StopRDSInstance(rdsInstanceId);
       } else {
         throw Error("No RDS Instance found, cannot stop");
       }
@@ -201,7 +200,7 @@ export const database = {
   status: publicProcedure
     .input(z.object({ rdsInstanceId: z.string() }))
     .query(async ({ input }) => {
-      return GetDatabaseStatus(input.rdsInstanceId);
+      return GetRDSInstanceStatus(input.rdsInstanceId);
     }),
 
   nuke: protectedProcedure.mutation(async ({ ctx }) => {
@@ -212,7 +211,7 @@ export const database = {
     });
 
     rdsInstances.forEach((instance) => {
-      DeleteDatabase(instance.id)
+      DeleteRDSInstance(instance.id)
         .then((value) => {
           console.log(
             `${instance.id} deleted: ${value.DBInstance?.DBInstanceIdentifier}`,

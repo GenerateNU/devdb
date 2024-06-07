@@ -1,21 +1,34 @@
 import gitUrlParse from "git-url-parse";
 import { z } from "zod";
 
-import { protectedProcedure } from "~/server/api/trpc";
+import { protectedProcedure, publicProcedure } from "~/server/api/trpc";
 import {
-  CreateDatabase,
-  DeleteDatabase,
-  GetDatabaseConnection,
-  StartDatabase,
-  StopDatabase,
+  CreateRDSInstance,
+  DeleteRDSInstance,
+  GetRDSConnectionURL,
+  GetRDSInstanceStatus,
+  StartRDSInstance,
+  StopRDSInstance,
 } from "~/server/external/aws";
 import { DBProvider } from "~/server/external/types";
 
-export const database = {
+export const project = {
   get: protectedProcedure
     .input(z.object({ searchTerms: z.string() }))
     .query(async ({ ctx, input }) => {
-      const searchResults = ctx.db.project.findMany({
+      const prisma = ctx.db.$extends({
+        result: {
+          project: {
+            status: {
+              compute(project) {
+                return project.rdsInstanceId ? "Unknown" : "No Database";
+              },
+            },
+          },
+        },
+      });
+
+      const searchResults = await prisma.project.findMany({
         include: {
           createdBy: {
             select: {
@@ -43,7 +56,16 @@ export const database = {
         },
       });
 
-      return searchResults;
+      return await Promise.all(
+        searchResults.map(async (project) => {
+          return project.rdsInstanceId
+            ? {
+                ...project,
+                status: await GetRDSInstanceStatus(project.rdsInstanceId),
+              }
+            : project;
+        }),
+      );
     }),
 
   create: protectedProcedure
@@ -78,7 +100,7 @@ export const database = {
         },
       });
 
-      const result = await CreateDatabase(id, input.provider);
+      const result = await CreateRDSInstance(id, input.provider);
 
       return result;
     }),
@@ -97,23 +119,25 @@ export const database = {
 
       console.log(findResults);
 
-      const deleteResults = await ctx.db.project.delete({
+      const { rdsInstanceId } = await ctx.db.project.delete({
         where: {
           repository: input.repoUrl,
         },
       });
 
-      console.log(deleteResults);
+      console.log(rdsInstanceId);
 
-      const result = await DeleteDatabase(findResults.rdsInstanceId);
-
-      return result;
+      if (rdsInstanceId) {
+        return await DeleteRDSInstance(rdsInstanceId);
+      } else {
+        throw Error("No RDS Instance found, cannot delete");
+      }
     }),
 
   endpoint: protectedProcedure
     .input(z.object({ repoUrl: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const dbResults = await ctx.db.project.findFirstOrThrow({
+      const { rdsInstanceId } = await ctx.db.project.findFirstOrThrow({
         select: {
           rdsInstanceId: true,
         },
@@ -122,18 +146,19 @@ export const database = {
         },
       });
 
-      console.log(dbResults);
+      console.log(rdsInstanceId);
 
-      const result = await GetDatabaseConnection(dbResults.rdsInstanceId);
-      return {
-        connection: result,
-      };
+      if (rdsInstanceId) {
+        return await GetRDSConnectionURL(rdsInstanceId);
+      } else {
+        throw Error("No RDS Instance found, cannot start");
+      }
     }),
 
   start: protectedProcedure
     .input(z.object({ repoUrl: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const dbResults = await ctx.db.project.findFirstOrThrow({
+      const { rdsInstanceId } = await ctx.db.project.findFirstOrThrow({
         select: {
           rdsInstanceId: true,
         },
@@ -142,16 +167,19 @@ export const database = {
         },
       });
 
-      console.log(dbResults);
+      console.log(rdsInstanceId);
 
-      const result = await StartDatabase(dbResults.rdsInstanceId);
-      return result;
+      if (rdsInstanceId) {
+        return await StartRDSInstance(rdsInstanceId);
+      } else {
+        throw Error("No RDS Instance found, cannot start");
+      }
     }),
 
   stop: protectedProcedure
     .input(z.object({ repoUrl: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const dbResults = await ctx.db.project.findFirstOrThrow({
+      const { rdsInstanceId } = await ctx.db.project.findFirstOrThrow({
         select: {
           rdsInstanceId: true,
         },
@@ -160,9 +188,45 @@ export const database = {
         },
       });
 
-      console.log(dbResults);
+      console.log(rdsInstanceId);
 
-      const result = await StopDatabase(dbResults.rdsInstanceId);
-      return result;
+      if (rdsInstanceId) {
+        return await StopRDSInstance(rdsInstanceId);
+      } else {
+        throw Error("No RDS Instance found, cannot stop");
+      }
     }),
+
+  status: publicProcedure
+    .input(z.object({ rdsInstanceId: z.string() }))
+    .query(async ({ input }) => {
+      return GetRDSInstanceStatus(input.rdsInstanceId);
+    }),
+
+  nuke: protectedProcedure.mutation(async ({ ctx }) => {
+    const rdsInstances = await ctx.db.rDSInstance.findMany({
+      select: {
+        id: true,
+      },
+    });
+
+    rdsInstances.forEach((instance) => {
+      DeleteRDSInstance(instance.id)
+        .then((value) => {
+          console.log(
+            `${instance.id} deleted: ${value.DBInstance?.DBInstanceIdentifier}`,
+          );
+
+          ctx.db.rDSInstance
+            .delete({
+              where: {
+                id: instance.id,
+              },
+            })
+            .then((value) => console.log(value.id))
+            .catch((error) => console.error(error));
+        })
+        .catch((error) => console.error(error));
+    });
+  }),
 };

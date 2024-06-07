@@ -16,7 +16,7 @@ export const database = {
   get: protectedProcedure
     .input(z.object({ searchTerms: z.string() }))
     .query(async ({ ctx, input }) => {
-      const searchResults = ctx.db.project.findMany({
+      const searchResults = await ctx.db.project.findMany({
         include: {
           createdBy: {
             select: {
@@ -42,6 +42,18 @@ export const database = {
               }
             : {}),
         },
+      });
+
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      const statusIncluded = searchResults.map(async (project) => {
+        const status = await GetDatabaseStatus(project.rdsInstanceId);
+
+        const newProject: typeof project & { status: string } = {
+          ...project,
+          status: status,
+        };
+
+        return newProject;
       });
 
       return searchResults;
@@ -169,7 +181,34 @@ export const database = {
 
   status: publicProcedure
     .input(z.object({ rdsInstanceId: z.string() }))
-    .query(async ({ ctx, input }) => {
+    .query(async ({ input }) => {
       return GetDatabaseStatus(input.rdsInstanceId);
     }),
+
+  nuke: protectedProcedure.mutation(async ({ ctx }) => {
+    const rdsInstances = await ctx.db.rDSInstance.findMany({
+      select: {
+        id: true,
+      },
+    });
+
+    rdsInstances.forEach((instance) => {
+      DeleteDatabase(instance.id)
+        .then((value) => {
+          console.log(
+            `${instance.id} deleted: ${value.DBInstance?.DBInstanceIdentifier}`,
+          );
+
+          ctx.db.rDSInstance
+            .delete({
+              where: {
+                id: instance.id,
+              },
+            })
+            .then((value) => console.log(value.id))
+            .catch((error) => console.error(error));
+        })
+        .catch((error) => console.error(error));
+    });
+  }),
 };

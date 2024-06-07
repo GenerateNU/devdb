@@ -43,7 +43,10 @@ export async function DeleteDatabase(
 ): Promise<DeleteDBInstanceCommandOutput> {
   const commandInput: DeleteDBInstanceCommandInput = {
     DBInstanceIdentifier: name,
+    SkipFinalSnapshot: true,
   };
+
+  console.log(commandInput);
 
   const command = new DeleteDBInstanceCommand(commandInput);
   const result = client.send(command);
@@ -51,9 +54,7 @@ export async function DeleteDatabase(
   return result;
 }
 
-export async function GetDatabaseStatus(
-  instanceId: string,
-): Promise<string | undefined> {
+export async function GetDatabaseStatus(instanceId: string): Promise<string> {
   const input = {
     DBInstanceIdentifier: instanceId,
   };
@@ -65,7 +66,7 @@ export async function GetDatabaseStatus(
     if (response.DBInstances?.length > 1) {
       const status = response.DBInstances[0]?.DBInstanceStatus;
       console.log(status);
-      return status;
+      return status ?? "Unknown";
     }
   }
 

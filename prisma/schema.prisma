@@ -35,6 +35,15 @@ model Account {
     @@unique([provider, providerAccountId])
 }
 
+model VerifiedEmails {
+    email String @id
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@unique([email])
+}
+
 model Session {
     id           String   @id @default(cuid())
     sessionToken String   @unique
@@ -53,7 +62,6 @@ model User {
     sessions      Session[]
     branches      Branch[]
     projects      Project[]
-    verified      Boolean   @default(false)
 }
 
 model VerificationToken {

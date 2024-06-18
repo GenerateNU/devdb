@@ -11,7 +11,7 @@ export default function Dummy() {
     testDummy
       .mutateAsync({ name: "test" })
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      .then((data) => setResults(`${data}`))
+      .then((data) => setResults(`success: ${data.message}`))
       .catch((error) => console.error(error));
   };
 

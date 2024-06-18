@@ -72,6 +72,49 @@ async function generateDummyData(
   }
 }
 
+async function tryCreateDataWithRetry(
+  modelName: string,
+  fields: string[],
+  schema: string,
+  retries: number,
+): Promise<void> {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const dummyData: unknown = await generateDummyData(
+        modelName,
+        fields,
+        schema,
+      );
+      if (dummyData) {
+        // Use type assertion to safely access the model
+        const model = prisma[modelName as keyof typeof prisma];
+        if (model && prisma) {
+          const createCommand = prisma[
+            modelName.toLocaleLowerCase() as keyof typeof prisma
+          ] as { create: (data: unknown) => unknown };
+          await createCommand.create({
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            data: JSON.parse(dummyData as string),
+          });
+          console.log(`Data inserted for model ${modelName}`);
+          return; // Exit function if successful
+        } else {
+          console.error(`Model ${modelName} does not exist in Prisma Client.`);
+          return; // Exit function if model does not exist
+        }
+      }
+    } catch (error) {
+      console.error(`Attempt ${attempt} failed:`, error);
+      if (attempt < retries) {
+        console.log("Retrying...");
+      } else {
+        console.error("All attempts failed.");
+        throw error;
+      }
+    }
+  }
+}
+
 async function dummyCreate(): Promise<{ message: string }> {
   console.log("Creating dummy data...");
   const schema = readFileSync("./prisma/schema.prisma", "utf8");
@@ -89,26 +132,8 @@ async function dummyCreate(): Promise<{ message: string }> {
 
       console.log(fields);
 
-      if (modelName && fields && (modelName == "Post" || modelName == "Like")) {
-        const dummyData: unknown = await generateDummyData(modelName, fields, schema);
-        if (dummyData) {
-          // Use type assertion to safely access the model
-          const model = prisma[modelName as keyof typeof prisma];
-          if (model && prisma) {
-            const createCommand = prisma[
-              modelName.toLocaleLowerCase() as keyof typeof prisma
-            ] as { create: (data: unknown) => unknown };
-            const results: unknown = await createCommand.create({
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-              data: JSON.parse(dummyData as string),
-            });
-            console.log(`Data inserted for model ${modelName}`);
-          } else {
-            console.error(
-              `Model ${modelName} does not exist in Prisma Client.`,
-            );
-          }
-        }
+      if (modelName && fields && modelName == "Post") {
+        await tryCreateDataWithRetry(modelName, fields, schema, 5);
       }
     }
   }

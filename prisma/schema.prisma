@@ -19,15 +19,8 @@ model Post {
   id           String    @id @default(cuid()) // do not generate id
   name         String
   title        String
-  description  String //make this 40 characters long and about a dog
-  dateUploaded DateTime? // make this
-  likes        Like[]
-}
-
-model Like {
-  id     String @id @default(cuid()) // do not generate id
-  postId String
-  post   Post   @relation(fields: [postId], references: [id])
+  description  String //make this about a dog
+  dateUploaded DateTime?
 }
 
 // Necessary for Next auth

@@ -1,7 +1,11 @@
 import { z } from "zod";
 
 import dummyCreate from "~/server/dummyData";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "~/server/api/trpc";
 
 export const dummy = createTRPCRouter({
   testDummy: publicProcedure

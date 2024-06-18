@@ -3,6 +3,7 @@ import BranchRow from "./BranchRow";
 import Link from "next/link";
 import { DeleteButton, PauseButton, PlayButton } from "./Button";
 import { api } from "~/trpc/react";
+import Image from "next/image";
 
 interface Branch {
   creator: string;
@@ -57,9 +58,11 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
       >
         <div className=" flex flex-row items-center">
           <button className=" px-12" onClick={onToggle}>
-            <img
+            <Image
               src="./images/ChevronIcon.svg"
               alt="Expand Project"
+              width={32}
+              height={32}
               className={`${isOpen && " rotate-180"} w-8 transition duration-300`}
             />
           </button>
@@ -81,11 +84,12 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             >
               {route.split("/").slice(-1)[0]}
             </Link>{" "}
-            - {branchesCount} branches - {databasesCount} databases
+            - {branchesCount} branches - {databasesCount} databases (
+            {instanceStatus})
           </span>
         </div>
         <div className="flex flex-row items-center">
-          {instanceStatus === "Stopped" ? (
+          {instanceStatus.toLowerCase() !== "available" ? (
             <PlayButton onClick={handleStart} />
           ) : (
             <PauseButton onClick={handlePause} />
@@ -94,7 +98,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         </div>
       </div>
       <div
-        className={`bg-gray-100 rounded-b-xl transition-all duration-300 overflow-hidden ${isOpen ? " h-max-fit h-96" : "h-0"}`}
+        className={`bg-gray-100 rounded-b-xl transition-all duration-300 overflow-hidden ${isOpen ? " h-max-fit h-auto" : "h-0"}`}
       >
         <div className="bg-project-row">
           {branches.map((branch, index) => (
@@ -108,7 +112,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         </div>
         <div className="flex flex-col gap-3 py-3 px-12 shadow-inner bg-white">
           <p>Created by: {creator}</p>
-          <p>Created on: {createdOn.toString()}</p>
+          <p>Created on: {createdOn.toDateString()}</p>
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import { gitHubRouter } from "./routers/github-router";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 import { greeting } from "./routers/greeting";
-import { database } from "./routers/databases";
+import { project } from "./routers/project";
 import { githubWebhookRouter } from "./routers/prisma";
 import { dummy } from "./routers/dummy";
 
@@ -13,7 +13,7 @@ import { dummy } from "./routers/dummy";
 export const appRouter = createTRPCRouter({
   github: gitHubRouter,
   greeting: greeting,
-  database: database,
+  database: project,
   webhook: githubWebhookRouter,
   dummy: dummy,
 });

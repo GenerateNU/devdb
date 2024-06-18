@@ -19,16 +19,9 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
-      verified: boolean;
       // ...other properties
       // role: UserRole;
     } & DefaultSession["user"];
-  }
-
-  interface User {
-    // ...other properties
-    // role: UserRole;
-    verified: boolean;
   }
 }
 
@@ -44,9 +37,20 @@ export const authOptions: NextAuthOptions = {
       user: {
         ...session.user,
         id: user.id,
-        verified: user.verified,
       },
     }),
+    async signIn({ profile }) {
+      // Check that the users email exists as a verified email
+      if (profile?.email) {
+        const count = await db.verifiedEmails.count({
+          where: { email: profile?.email },
+        });
+
+        return count > 0;
+      }
+
+      return false;
+    },
   },
   adapter: PrismaAdapter(db) as Adapter,
   providers: [

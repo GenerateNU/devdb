@@ -15,7 +15,7 @@ import {
   type StopDBInstanceResult,
   type StopDBInstanceCommandInput,
 } from "@aws-sdk/client-rds";
-import type { DBProvider } from "./types";
+import type { DBProvider } from "./aws.types";
 
 const client = new RDSClient({ region: "us-east-1" });
 

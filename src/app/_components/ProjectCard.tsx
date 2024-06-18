@@ -6,9 +6,8 @@ import { api } from "~/trpc/react";
 import Image from "next/image";
 
 interface Branch {
-  creator: string;
   name: string;
-  status: string;
+  active: boolean;
 }
 
 interface ProjectCardProps {
@@ -104,9 +103,8 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           {branches.map((branch, index) => (
             <BranchRow
               key={index}
-              creator={branch.creator}
               name={branch.name}
-              status={branch.status}
+              status={branch.active ? "Active" : "Inactive"}
             />
           ))}
         </div>

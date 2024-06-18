@@ -1,5 +1,6 @@
 import gitUrlParse from "git-url-parse";
 import { z } from "zod";
+import ProjectList from "~/app/_components/ProjectList";
 
 import { protectedProcedure, publicProcedure } from "~/server/api/trpc";
 import {
@@ -10,7 +11,8 @@ import {
   StartRDSInstance,
   StopRDSInstance,
 } from "~/server/external/aws";
-import { DBProvider } from "~/server/external/types";
+import { DBProvider } from "~/server/external/aws.types";
+import { FetchBranches } from "~/server/external/github";
 
 export const project = {
   get: protectedProcedure
@@ -56,16 +58,32 @@ export const project = {
         },
       });
 
-      return await Promise.all(
+      const results = await Promise.all(
         searchResults.map(async (project) => {
-          return project.rdsInstanceId
-            ? {
-                ...project,
-                status: await GetRDSInstanceStatus(project.rdsInstanceId),
-              }
-            : project;
+          const extraBranches = await FetchBranches(project.repository);
+          const extraBranchesMapped = extraBranches.map((name) => {
+            return { name: name, active: false };
+          });
+          const existingBranches = project.branches.map((branch) => {
+            return {
+              name: branch.name,
+              active: true,
+            };
+          });
+
+          return {
+            repository: project.repository,
+            branches: existingBranches.concat(extraBranchesMapped),
+            createdBy: project.createdBy,
+            createdAt: project.createdAt,
+            status: project.rdsInstanceId
+              ? await GetRDSInstanceStatus(project.rdsInstanceId)
+              : "Unknown",
+          };
         }),
       );
+
+      return results;
     }),
 
   create: protectedProcedure

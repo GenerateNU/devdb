@@ -132,7 +132,7 @@ async function dummyCreate(): Promise<{ message: string }> {
 
       console.log(fields);
 
-      if (modelName && fields && modelName == "Post") {
+      if (modelName && fields) {
         await tryCreateDataWithRetry(modelName, fields, schema, 5);
       }
     }

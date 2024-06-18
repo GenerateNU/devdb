@@ -19,7 +19,7 @@ import type { DBProvider } from "./types";
 
 const client = new RDSClient({ region: "us-east-1" });
 
-export async function CreateRDSInstance(
+export async function CreateDatabase(
   name: string,
   provider: DBProvider,
 ): Promise<CreateDBInstanceCommandOutput> {
@@ -38,15 +38,12 @@ export async function CreateRDSInstance(
   return result;
 }
 
-export async function DeleteRDSInstance(
+export async function DeleteDatabase(
   name: string,
 ): Promise<DeleteDBInstanceCommandOutput> {
   const commandInput: DeleteDBInstanceCommandInput = {
     DBInstanceIdentifier: name,
-    SkipFinalSnapshot: true,
   };
-
-  console.log(commandInput);
 
   const command = new DeleteDBInstanceCommand(commandInput);
   const result = client.send(command);
@@ -54,31 +51,11 @@ export async function DeleteRDSInstance(
   return result;
 }
 
-export async function GetRDSInstanceStatus(
-  instanceId: string,
-): Promise<string> {
-  const input = {
-    DBInstanceIdentifier: instanceId,
-  };
-  const command = new DescribeDBInstancesCommand(input);
-
-  const response = await client.send(command);
-
-  if (response.DBInstances) {
-    if (response.DBInstances?.length > 0) {
-      const status = response.DBInstances[0]?.DBInstanceStatus;
-      console.log(status);
-      return status ?? "Unknown";
-    }
-  }
-
-  return "Could not fetch";
-}
-
-export async function GetRDSConnectionURL(
+export async function GetDatabaseConnection(
   instanceId: string | undefined,
 ): Promise<string | undefined> {
   const input = {
+    // DescribeDBInstancesMessage
     DBInstanceIdentifier: instanceId,
   };
   const command = new DescribeDBInstancesCommand(input);
@@ -93,7 +70,7 @@ export async function GetRDSConnectionURL(
         const provider = response.DBInstances[0].Engine;
         const username = "dev";
         const password = "devpassword123";
-        const awsEndpoint = response.DBInstances[0].Endpoint?.Address;
+        const awsEndpoint = response.DBInstances[0].Endpoint?.Address; //"test-database.cw6wi7ttmo36.us-east-1.rds.amazonaws.com";
         const port = response.DBInstances[0].Endpoint?.Port;
         const dbName = response.DBInstances[0].DBName;
 
@@ -115,7 +92,7 @@ export async function GetRDSConnectionURL(
   }
 }
 
-export async function StartRDSInstance(
+export async function StartDatabase(
   name: string,
 ): Promise<StartDBInstanceResult> {
   const input: StartDBInstanceCommandInput = {
@@ -127,7 +104,7 @@ export async function StartRDSInstance(
   return result;
 }
 
-export async function StopRDSInstance(
+export async function StopDatabase(
   name: string,
 ): Promise<StopDBInstanceResult> {
   const input: StopDBInstanceCommandInput = {

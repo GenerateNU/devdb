@@ -1,5 +1,5 @@
 {
-  "name": "generate-routes-cli",
+  "name": "generate-devdb",
   "type": "module",
   "exports": "./dist/index.js",
   "scripts": {
@@ -22,6 +22,7 @@
     "@types/inquirer": "^9.0.7",
     "axios": "^1.7.2",
     "bun": "^1.1.8",
+    "dotenv": "^16.4.5",
     "execa": "^9.1.0",
     "inquirer": "^9.2.21",
     "install": "^0.13.0",

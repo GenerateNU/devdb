@@ -12,7 +12,7 @@ import { dummy } from "./routers/dummy";
  */
 export const appRouter = createTRPCRouter({
   github: gitHubRouter,
-  greeting: greeting,
+  health: greeting,
   database: project,
   webhook: githubWebhookRouter,
   dummy: dummy,

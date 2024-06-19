@@ -9,9 +9,8 @@ interface ProjectListProps {
     databasesCount: number;
     instanceStatus: string;
     branches: Array<{
-      creator: string;
       name: string;
-      status: string;
+      active: boolean;
     }>;
     creator: string;
     createdOn: Date;

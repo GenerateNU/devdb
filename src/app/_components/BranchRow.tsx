@@ -1,18 +1,12 @@
 import { CreateButton, DeleteButton } from "./Button";
 
-export default function BranchRow(props: {
-  creator: string;
-  name: string;
-  status: string;
-}) {
+export default function BranchRow(props: { name: string; status: string }) {
   const actionLabel =
     props.status === "No DB" ? "Create Database" : "Connect to Database";
 
   return (
     <div className="flex justify-between items-center py-3 pl-12 pr-8 shadow-inner">
-      <span className="flex flex-row w-3/5">
-        {props.creator} / {props.name}
-      </span>
+      <span className="flex flex-row w-3/5">{props.name}</span>
       <span className=" w-2/5">
         <a href="#" className="hover:underline">
           {actionLabel}

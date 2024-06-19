@@ -22,22 +22,17 @@ export default function DashboardItems() {
     searchTerms: searchTerm,
   });
 
-  const nukeMutation = api.database.nuke.useMutation();
-
   const mappedProjects = projectsData?.map((project) => {
-    console.log(project.rdsInstanceId);
-
     return {
       projectName: project.repository,
       route: project.repository,
       branchesCount: project.branches.length,
-      databasesCount: project.branches.length,
+      databasesCount: project.branches.filter((branch) => branch.active).length,
       instanceStatus: project.status,
       branches: project.branches.map((branch) => {
         return {
-          creator: branch.createdBy.name ?? "Unknown",
           name: branch.name,
-          status: "TODO: REMOVE",
+          active: branch.active,
         };
       }),
       creator: project.createdBy.name ?? "Unknown",
@@ -49,12 +44,7 @@ export default function DashboardItems() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className=" flex flex-row justify-between">
-        <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-        <button onClick={() => nukeMutation.mutate()}>
-          Nuke All Instances
-        </button>
-      </div>
+      <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
       {isLoading && <div>Loading...</div>}
       {error && <div>Error: {error.message}</div>}
       {!isLoading &&

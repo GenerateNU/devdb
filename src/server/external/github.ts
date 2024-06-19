@@ -8,6 +8,7 @@ const APP = new App({
 });
 
 async function GetOctokit(owner: string, name: string) {
+  // FIXME
   const response = await APP.octokit.request(
     `GET /repos/${owner}/${name}/installation`,
     {
@@ -71,13 +72,15 @@ export async function FetchBranches(repoUrl: string): Promise<string[]> {
   const response = await octokit.request(
     `GET /repos/${owner}/${name}/branches`,
     {
-      owner: "OWNER",
-      repo: "REPO",
+      owner: owner,
+      repo: name,
       headers: {
         "X-GitHub-Api-Version": "2022-11-28",
       },
     },
   );
+
+  console.log(response);
 
   const dataArray = response.data as BranchInformation[];
 

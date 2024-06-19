@@ -1,6 +1,5 @@
 import gitUrlParse from "git-url-parse";
 import { z } from "zod";
-import ProjectList from "~/app/_components/ProjectList";
 
 import { protectedProcedure, publicProcedure } from "~/server/api/trpc";
 import {
@@ -60,10 +59,11 @@ export const project = {
 
       const results = await Promise.all(
         searchResults.map(async (project) => {
-          const extraBranches = await FetchBranches(project.repository);
+          /* const extraBranches = await FetchBranches(project.repository);
+          console.log(extraBranches);
           const extraBranchesMapped = extraBranches.map((name) => {
             return { name: name, active: false };
-          });
+          }); */
           const existingBranches = project.branches.map((branch) => {
             return {
               name: branch.name,
@@ -73,7 +73,7 @@ export const project = {
 
           return {
             repository: project.repository,
-            branches: existingBranches.concat(extraBranchesMapped),
+            branches: existingBranches, // existingBranches.concat(extraBranchesMapped),
             createdBy: project.createdBy,
             createdAt: project.createdAt,
             status: project.rdsInstanceId

@@ -11,7 +11,7 @@ import { githubWebhookRouter } from "./routers/prisma";
  */
 export const appRouter = createTRPCRouter({
   github: gitHubRouter,
-  greeting: greeting,
+  health: greeting,
   database: project,
   webhook: githubWebhookRouter,
 });

@@ -1,6 +1,7 @@
 import inquirer from "inquirer";
 import axios from "axios";
 import { GetCredentials } from "../utils/getCredentials";
+import updateExistingEnvVariable from "../utils/updateEnv";
 
 type SetupAnswers = {
   useGenerateBackend: boolean;
@@ -47,6 +48,9 @@ export default async function SetupCLI() {
     if (status !== 200) {
       console.error("DevDB backend url not healthy, exiting...");
       process.exit(1);
+    } else {
+      await updateExistingEnvVariable("DEVDB_URL", backendUrl);
+      console.log("Successfully reached the backend");
     }
   } catch (error) {
     console.error("DevDB backend url not healthy, exiting...");
@@ -76,6 +80,9 @@ export default async function SetupCLI() {
     if (status !== 200) {
       console.error("Token not authenticated, exiting...");
       process.exit(1);
+    } else {
+      await updateExistingEnvVariable("DEVDB_TOKEN", sessionToken);
+      console.log("Successfully authenticated the token");
     }
   } catch (error) {
     console.log(error);

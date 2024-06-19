@@ -7,7 +7,7 @@ export default async function updateExistingEnvVariable(
   try {
     // Path to the .env file
     const filePath = ".env";
-    const content = await readFile(filePath);
+    const content = await readFile(filePath, { flag: "a+" });
 
     // Split the content into lines
     const lines = content.toString().split("\n");

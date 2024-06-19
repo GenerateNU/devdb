@@ -1,140 +1,54 @@
 #!/usr/bin/env node
 
-import inquirer from "inquirer";
-import parse, { type Config } from "parse-git-config";
-import type { CLIAnswers, EndpointResponse } from "./types";
-import parseGithubUrl from "parse-github-url";
-import axios from "axios";
-import updateExistingEnvVariable from "./utils/updateEnv";
 import SetupCLI from "./menu/setup";
-import { exit } from "process";
+import ViewProjects from "./menu/projects";
+import inquirer from "inquirer";
 
-export const baseUrl = "https://routes-orcin.vercel.app/";
-export const apiPath = "api/trpc/";
-const createDatabasePath = "database.create";
-const endpointPath = "database.endpoint";
+type MainAnswers = {
+  selectedMenu: "setup" | "projects" | "exit";
+};
 
-// Create an Axios instance
-const axiosInstance = axios.create({
-  withCredentials: true, // Ensure credentials are sent with every request
-});
-
-async function askRetry(): Promise<boolean> {
-  const answers = (await inquirer.prompt([
+async function GetMainAnswers(): Promise<MainAnswers> {
+  return (await inquirer.prompt([
     {
-      type: "confirm",
-      name: "retry",
-      message: "Do you want to try updating the environment variable again?",
-      default: false,
+      type: "list",
+      name: "selectedMenu",
+      message: "Select a menu option",
+      choices: ["setup", "projects", "exit"],
     },
-  ])) as { retry: boolean };
-  return answers.retry;
+  ])) as MainAnswers;
 }
 
-//this is where the cli code is generated to ensure we are able to get the user info
+/**
+ * 1. Setup CLI (Auto setup if env vars are missing)
+ * 2. Databases
+ *    a. Add Project
+ *    b. Project 1
+ *       i.    Pause/Start
+ *       ii.   Delete
+ *       iii.  main (active db)
+ *          1. Set connection url to env
+ *          2. Generate sample data
+ *       iv. test-branch (no db)
+ *          1. Push database
+ *    ...
+ *    c. Project 3
+ */
 async function main() {
-  await SetupCLI();
+  const { selectedMenu } = await GetMainAnswers();
 
-  process.exit(1);
-  /* 
-  const config: Config = parse.expandKeys(parse.sync());
-
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-  const repoUrl = config?.remote?.origin?.url;
-
-  const answers: CLIAnswers = (await inquirer.prompt([
-    {
-      type: "list",
-      name: "backendLanguage",
-      message:
-        "What backend language are you using? (Other clients will be added later)",
-      choices: ["TypeScript"],
-    },
-    {
-      type: "list",
-      name: "dbProvider",
-      message: "What database provider are you using?",
-      choices: ["mysql", "postgres"],
-    },
-    {
-      type: "confirm",
-      name: "deployDatabase",
-      message: "Do you want to deploy a database to the cloud?",
-    },
-    {
-      type: "confirm",
-      name: "correctRepo",
-      message: `Is ${repoUrl} your correct repo?`,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      when: (answers) => answers.deployDatabase === true,
-    },
-  ])) as CLIAnswers;
-
-  if (answers.deployDatabase) {
-    const parsedUrl = parseGithubUrl(repoUrl as string);
-    console.log("Name:", parsedUrl?.name); // repositoryName
-
-    if (!repoUrl) {
-      console.error("No repo found in git config");
+  switch (selectedMenu) {
+    case "setup":
+      await SetupCLI();
+      break;
+    case "projects":
+      await ViewProjects();
+      break;
+    default:
       process.exit(1);
-    }
+  }
 
-    console.log("Deploying database...");
-    // Send request to backend to create database
-    try {
-      await axiosInstance.post(`${baseUrl}${apiPath}${createDatabasePath}`, {
-        json: {
-          repoUrl: repoUrl as string,
-          provider: answers.dbProvider,
-        },
-      });
-    } catch (error) {
-      console.warn("Database on this branch has already been deployed");
-    }
-
-    console.log("Deploying, this may take up to 10 minutes");
-
-    // Send request to backend to create database
-    for (let i = 0; i < 120; i++) {
-      try {
-        const endpointResponse = await axiosInstance.post(
-          `${baseUrl}${apiPath}${endpointPath}`,
-          {
-            json: {
-              repoUrl: repoUrl as string,
-            },
-          },
-        );
-
-        if (endpointResponse) {
-          const endpointData = endpointResponse.data as EndpointResponse;
-          console.log("Connection information:\n");
-          console.log("\t" + endpointData.result.data.json.connection);
-          console.log();
-
-          // Automatically set connection as environment URL
-          let retrySetEnv = true;
-          while (retrySetEnv) {
-            const success = await updateExistingEnvVariable(
-              "DATABASE_URL",
-              endpointData.result.data.json.connection,
-            );
-            if (success) {
-              console.log("Environment variable updated successfully.");
-              break;
-            } else {
-              console.error("Failed to update environment variable.");
-              retrySetEnv = await askRetry();
-            }
-          }
-          break;
-        }
-      } catch (error) {
-        await new Promise((resolve) => setTimeout(resolve, 10000));
-        console.warn("Retrying...");
-      }
-    }
-  } */
+  await main();
 }
 
 await main();

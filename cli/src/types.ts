@@ -15,3 +15,17 @@ export type EndpointResponse = {
     };
   };
 };
+
+export type Project = {
+  owner: string;
+  ownerName: string;
+  repository: string;
+  repositoryName: string;
+  createdAt: Date;
+  updatedAt: Date;
+  createdById: string;
+  rdsInstanceId: string;
+  createdBy: { name: string };
+  //branches: [[Object]];
+  status: string;
+};

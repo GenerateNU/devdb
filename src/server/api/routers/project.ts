@@ -11,7 +11,6 @@ import {
   StopRDSInstance,
 } from "~/server/external/aws";
 import { DBProvider } from "~/server/external/aws.types";
-import { FetchBranches } from "~/server/external/github";
 
 export const project = {
   get: protectedProcedure

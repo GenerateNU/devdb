@@ -9,12 +9,13 @@ import {
 } from "../endpoints/projectEndpoints";
 import type { Project } from "../types";
 import updateExistingEnvVariable from "../utils/updateEnv";
+import parse from "parse-git-config";
 
 type ProjectAnswers = {
   selectedProject: string;
 };
 
-const addProjectLabel = "Add a new project";
+const addProjectLabel = "Add current repo as project";
 
 async function SelectProject(projectNames: string[]): Promise<ProjectAnswers> {
   return (await inquirer.prompt([
@@ -52,6 +53,17 @@ export default async function ViewProjects() {
   );
 
   if (selectedProjectName === addProjectLabel) {
+    const gitConfig = parse.expandKeys(parse.sync());
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    const url = gitConfig?.remote?.origin?.url as string;
+
+    if (url) {
+      const createSuccess = await CreateProject(url);
+      LogSuccess(createSuccess, "created", "creating");
+    } else {
+      console.log("❌ This project does not have a git repo initialized");
+    }
   } else if (selectedProjectName === "back") {
     // Do nothing
   } else {

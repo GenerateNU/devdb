@@ -36,8 +36,6 @@ async function GetMainAnswers(): Promise<MainAnswers> {
  *    c. Project 3
  */
 async function main() {
-  console.log(process.env);
-
   if (!(process.env.DEVDB_TOKEN && process.env.DEVDB_URL)) {
     await SetupCLI();
   } else {

@@ -45,6 +45,7 @@ export default async function SetupCLI() {
       process.exit(1);
     } else {
       await updateExistingEnvVariable("DEVDB_URL", backendUrl);
+      process.env.DEVDB_URL = backendUrl;
       config.baseUrl = backendUrl;
       console.log("✅ Successfully reached the backend");
     }
@@ -56,7 +57,7 @@ export default async function SetupCLI() {
   // Verify session token is valid
   try {
     console.log(`Attempting to authenticated token`);
-    const credentials = await GetCredentials(config.baseUrl, sessionToken);
+    const credentials = GetCredentials(sessionToken);
     SetCookie(credentials);
 
     const { status } = await axiosInstance.get(
@@ -67,6 +68,7 @@ export default async function SetupCLI() {
       process.exit(1);
     } else {
       await updateExistingEnvVariable("DEVDB_TOKEN", sessionToken);
+      process.env.DEVDB_TOKEN = sessionToken;
       console.log("✅ Successfully authenticated the token");
     }
   } catch (error) {

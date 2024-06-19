@@ -1,3 +1,3 @@
-export async function GetCredentials(baseUrl: string, sessionToken: string) {
+export function GetCredentials(sessionToken: string) {
   return `next-auth.session-token=${sessionToken}`;
 }

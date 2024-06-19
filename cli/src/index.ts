@@ -3,6 +3,7 @@
 import SetupCLI from "./menu/setup";
 import ViewProjects from "./menu/projects";
 import inquirer from "inquirer";
+import "dotenv/config";
 
 type MainAnswers = {
   selectedMenu: "setup" | "projects" | "exit";
@@ -35,17 +36,22 @@ async function GetMainAnswers(): Promise<MainAnswers> {
  *    c. Project 3
  */
 async function main() {
-  const { selectedMenu } = await GetMainAnswers();
+  console.log(process.env);
 
-  switch (selectedMenu) {
-    case "setup":
-      await SetupCLI();
-      break;
-    case "projects":
-      await ViewProjects();
-      break;
-    default:
-      process.exit(1);
+  if (!(process.env.DEVDB_TOKEN && process.env.DEVDB_URL)) {
+    await SetupCLI();
+  } else {
+    const { selectedMenu } = await GetMainAnswers();
+    switch (selectedMenu) {
+      case "setup":
+        await SetupCLI();
+        break;
+      case "projects":
+        await ViewProjects();
+        break;
+      default:
+        process.exit(0);
+    }
   }
 
   await main();

@@ -52,7 +52,7 @@ export default async function ViewProjects() {
         projects.findIndex((proj) => proj.repository === selectedProjectName)
       ];
 
-    await ViewProjectOptions(selectedProject);
+    if (selectedProject) await ViewProjectOptions(selectedProject);
   }
 }
 

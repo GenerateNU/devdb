@@ -1,5 +1,5 @@
 {
-  "name": "generate-routes",
+  "name": "generate-devdb-server",
   "version": "0.1.0",
   "private": true,
   "type": "module",

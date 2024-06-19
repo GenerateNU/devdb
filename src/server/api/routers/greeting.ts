@@ -1,11 +1,5 @@
-import { z } from "zod";
+import { protectedProcedure } from "~/server/api/trpc";
 
-import { publicProcedure } from "~/server/api/trpc";
-
-export const greeting = publicProcedure
-  .input(z.object({ text: z.string() }))
-  .mutation(async ({ input }) => {
-    return {
-      greeting: `Hello ${input.text}`,
-    };
-  });
+export const greeting = protectedProcedure.query(async () => {
+  return "Hello DevDB user!";
+});

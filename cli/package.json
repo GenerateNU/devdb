@@ -1,5 +1,5 @@
 {
-  "name": "generate-routes-cli",
+  "name": "generate-devdb",
   "type": "module",
   "exports": "./dist/index.js",
   "scripts": {

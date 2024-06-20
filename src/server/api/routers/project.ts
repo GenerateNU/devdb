@@ -12,7 +12,6 @@ import {
   StopRDSInstance,
 } from "~/server/external/aws";
 import { DBProvider } from "~/server/external/types";
-import { PushPrismaSchema } from "~/app/api/github/utils";
 import { PushSchemaFromBranch } from "~/server/prisma/schema";
 
 export const project = {

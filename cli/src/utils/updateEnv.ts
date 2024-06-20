@@ -1,3 +1,4 @@
+import { existsSync } from "fs";
 import { readFile, writeFile } from "fs/promises";
 
 export default async function updateExistingEnvVariable(
@@ -7,7 +8,7 @@ export default async function updateExistingEnvVariable(
   try {
     // Path to the .env file
     const filePath = ".env";
-    const content = await readFile(filePath);
+    const content = existsSync(filePath) ? await readFile(filePath) : "";
 
     // Split the content into lines
     const lines = content.toString().split("\n");
@@ -32,7 +33,7 @@ export default async function updateExistingEnvVariable(
     const updatedContent = updatedLines.join("\n");
 
     // Write the updated contents back to the .env.example file
-    await writeFile(filePath, updatedContent);
+    await writeFile(filePath, updatedContent, { flag: "w+" });
     //potentially add utf8 above if it fails
     const verifyContent = await readFile(filePath, "utf8");
     return verifyContent.includes(`${varName}=${newValue}`);

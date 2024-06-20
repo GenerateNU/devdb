@@ -1,3 +1,3 @@
 export function GetCredentials(sessionToken: string) {
-  return `next-auth.session-token=${sessionToken}`;
+  return `__Secure-next-auth.session-token=${sessionToken}`;
 }

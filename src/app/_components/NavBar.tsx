@@ -21,6 +21,9 @@ const Navbar: React.FC = () => {
         <Link href="/">
           <button className="hover:underline font-bold">Home</button>
         </Link>
+        <Link href="/cli">
+          <button className="hover:underline font-bold">CLI</button>
+        </Link>
         <Link href="/new-project">
           <button className="hover:underline">New Project</button>
         </Link>

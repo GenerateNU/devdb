@@ -1,4 +1,8 @@
-import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
+import {
+  createCallerFactory,
+  createTRPCRouter,
+  protectedProcedure,
+} from "~/server/api/trpc";
 import { greeting } from "./routers/greeting";
 import { project } from "./routers/project";
 import { dummy } from "./routers/dummy";
@@ -12,6 +16,16 @@ export const appRouter = createTRPCRouter({
   health: greeting,
   database: project,
   dummy: dummy,
+  token: protectedProcedure.query(({ ctx }) => {
+    return ctx.db.session.findFirst({
+      select: {
+        sessionToken: true,
+      },
+      where: {
+        userId: ctx.session.user.id,
+      },
+    });
+  }),
 });
 
 // export type definition of API

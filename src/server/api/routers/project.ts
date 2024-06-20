@@ -1,4 +1,5 @@
 import gitUrlParse from "git-url-parse";
+import { CreateWebhook } from "../../external/github";
 import { waitUntil } from "async-wait-until";
 import { z } from "zod";
 
@@ -12,7 +13,6 @@ import {
   StopRDSInstance,
 } from "~/server/external/aws";
 import { DBProvider } from "~/server/external/types";
-import { PushPrismaSchema } from "~/app/api/github/utils";
 import { PushSchemaFromBranch } from "~/server/prisma/schema";
 
 export const project = {
@@ -108,6 +108,7 @@ export const project = {
       });
 
       const result = await CreateRDSInstance(id, input.provider);
+      await CreateWebhook(href);
 
       // Wait until the database is available to then push the schema
       waitUntil(
@@ -117,7 +118,7 @@ export const project = {
       )
         .then(async (matching) => {
           console.log(matching);
-          await PushSchemaFromBranch(branch, owner, name);
+          await PushSchemaFromBranch(input.repoUrl, branch, owner, name);
         })
         .catch((reason) => {
           console.error(reason);

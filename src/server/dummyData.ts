@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import OpenAI from "openai";
-import { readFileSync } from "fs";
+import gitUrlParse from "git-url-parse";
+import { GetSchemaContents } from "./external/github";
 
 const prisma = new PrismaClient();
 
@@ -115,9 +116,21 @@ async function tryCreateDataWithRetry(
   }
 }
 
-async function dummyCreate(): Promise<{ message: string }> {
+async function dummyCreate(
+  repository: string,
+  branch: string,
+  modelsToGenerate: { name: string; count: number }[],
+): Promise<{ message: string }> {
+  const parsedUrl = gitUrlParse(repository);
+  const { owner, name } = parsedUrl;
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const { data } = await GetSchemaContents(repository, branch);
+
+  const schema = data as unknown as string;
+
+  const allNames = modelsToGenerate.map((info) => info.name);
+
   console.log("Creating dummy data...");
-  const schema = readFileSync("./prisma/schema.prisma", "utf8");
   const models = schema.match(/model \w+ {[^}]+}/g);
   console.log(models);
 
@@ -132,8 +145,12 @@ async function dummyCreate(): Promise<{ message: string }> {
 
       console.log(fields);
 
-      if (modelName && fields) {
-        await tryCreateDataWithRetry(modelName, fields, schema, 5);
+      if (modelName && modelName in allNames && fields) {
+        const info = modelsToGenerate.find(
+          (info) => info.name === modelName,
+        ) ?? { name: "none", count: 0 };
+        for (let i = 0; i < info?.count; i++)
+          await tryCreateDataWithRetry(modelName, fields, schema, 5);
       }
     }
   }

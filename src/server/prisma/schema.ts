@@ -1,15 +1,11 @@
-import { Octokit } from "@octokit/rest";
 import { db } from "../db";
 import { PushPrismaSchema } from "../../app/api/github/utils";
 import { GetRDSConnectionURL } from "../external/aws";
-
-// Initialize Octokit with an access token
-const octokit = new Octokit({
-  auth: process.env.GITHUB_ACCESS_TOKEN,
-});
+import { GetSchemaContents } from "../external/github";
 
 // To handle a POST request to /api/github
 export async function PushSchemaFromBranch(
+  repository: string,
   branch: string,
   owner: string,
   name: string,
@@ -30,14 +26,8 @@ export async function PushSchemaFromBranch(
 
   if (branch && branchInfo?.project.rdsInstanceId) {
     // Fetch the content of the Prisma schema file using Octokit
-    const { data } = await octokit.repos.getContent({
-      owner: owner,
-      repo: name,
-      path: "prisma/schema.prisma",
-      mediaType: {
-        format: "raw",
-      },
-    });
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const { data } = await GetSchemaContents(repository, branch);
 
     if (!Array.isArray(data) && data) {
       const baseConnection = await GetRDSConnectionURL(

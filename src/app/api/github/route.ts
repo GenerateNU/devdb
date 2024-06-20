@@ -12,7 +12,12 @@ export async function POST(request: NextRequest) {
     const branch = ref.split("/")[-1];
     const { owner, name } = repository;
     if (branch) {
-      await PushSchemaFromBranch(branch, owner, name);
+      await PushSchemaFromBranch(
+        `https://github.com/${owner}/${name}`,
+        branch,
+        owner,
+        name,
+      );
       return NextResponse.json({ status: 200 });
     } else {
       return NextResponse.json({ status: 500 });

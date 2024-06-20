@@ -1,8 +1,6 @@
-import { gitHubRouter } from "./routers/github-router";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 import { greeting } from "./routers/greeting";
 import { project } from "./routers/project";
-import { githubWebhookRouter } from "./routers/prisma";
 import { dummy } from "./routers/dummy";
 
 /**
@@ -11,10 +9,8 @@ import { dummy } from "./routers/dummy";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
-  github: gitHubRouter,
   health: greeting,
   database: project,
-  webhook: githubWebhookRouter,
   dummy: dummy,
 });
 

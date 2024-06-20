@@ -62,7 +62,7 @@ export async function CreateWebhook(repoUrl: string) {
         events: ["push", "pull_request"],
         config: {
           // to be replaced with actual webhook URL
-          url: `${process.env.NEXTAUTH_URL}/api/trpc/receive`,
+          url: `${process.env.NEXTAUTH_URL}/api/github`,
           content_type: "json",
           insecure_ssl: "1",
         },

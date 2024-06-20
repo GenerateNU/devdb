@@ -10,6 +10,8 @@ export const config = {
 };
 
 export function SetCookie(credentials: string) {
+  axiosInstance.interceptors.request.clear();
+
   // Add a request interceptor to include the cookie in the headers
   axiosInstance.interceptors.request.use(
     (config) => {

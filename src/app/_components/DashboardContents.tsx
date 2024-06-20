@@ -36,7 +36,7 @@ export default function DashboardItems() {
       }),
       creator: project.createdBy.name ?? "Unknown",
       createdOn: project.createdAt,
-      baseConnection: project.rdsInstance?.baseConnection
+      baseConnection: project.rdsInstance?.baseConnection,
     };
   });
 

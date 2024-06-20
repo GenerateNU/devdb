@@ -16,6 +16,7 @@ import {
   type StopDBInstanceCommandInput,
 } from "@aws-sdk/client-rds";
 import type { DBProvider } from "./types";
+import { db } from "../db";
 
 const client = new RDSClient({ region: "us-east-1" });
 
@@ -97,6 +98,16 @@ export async function GetRDSConnectionURL(
         const port = response.DBInstances[0].Endpoint?.Port;
 
         const connection = `${provider}://${username}:${password}@${awsEndpoint}:${port}`;
+
+        // Update database
+        await db.rDSInstance.update({
+          where: {
+            id: instanceId,
+          },
+          data: {
+            baseConnection: connection,
+          },
+        });
 
         return connection;
       } else {

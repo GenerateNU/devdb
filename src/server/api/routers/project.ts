@@ -123,6 +123,7 @@ export const project = {
       )
         .then(async (matching) => {
           console.log(matching);
+          await GetRDSConnectionURL(id);
           await PushSchemaFromBranch(input.repoUrl, branch, owner, name);
         })
         .catch((reason) => {

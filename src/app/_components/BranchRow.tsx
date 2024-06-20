@@ -1,12 +1,8 @@
-import { CreateButton, DeleteButton } from "./Button";
-
 export default function BranchRow(props: {
   creator: string;
   name: string;
-  status: string;
 }) {
-  const actionLabel =
-    props.status === "No DB" ? "Create Database" : "Connect to Database";
+  const actionLabel = "Connect to Database";
 
   return (
     <div className="flex justify-between items-center py-3 pl-12 pr-8 shadow-inner">
@@ -19,11 +15,6 @@ export default function BranchRow(props: {
         </a>
       </span>
       <div className=" flex flex-row gap-4 w-1/5 justify-end">
-        {props.status === "No DB" ? (
-          <CreateButton onClick={() => console.log("Create DB")} />
-        ) : (
-          <DeleteButton onClick={() => console.log("Delete DB")} />
-        )}
       </div>
     </div>
   );

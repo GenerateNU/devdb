@@ -8,7 +8,6 @@ import Image from "next/image";
 interface Branch {
   creator: string;
   name: string;
-  status: string;
 }
 
 interface ProjectCardProps {
@@ -106,7 +105,6 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
               key={index}
               creator={branch.creator}
               name={branch.name}
-              status={branch.status}
             />
           ))}
         </div>

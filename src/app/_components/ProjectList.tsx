@@ -11,7 +11,6 @@ interface ProjectListProps {
     branches: Array<{
       creator: string;
       name: string;
-      status: string;
     }>;
     creator: string;
     createdOn: Date;

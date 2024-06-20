@@ -6,8 +6,8 @@ const prisma = new PrismaClient();
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_SECRET_KEY!,
-  organization: process.env.OPENAI_ORG_ID!,
+  apiKey: process.env.OPENAI_API_SECRET_KEY ?? "empty",
+  organization: process.env.OPENAI_ORG_ID ?? "empty",
 });
 
 interface ChatResponse {

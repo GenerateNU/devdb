@@ -1,7 +1,4 @@
-export default function BranchRow(props: {
-  creator: string;
-  name: string;
-}) {
+export default function BranchRow(props: { creator: string; name: string }) {
   const actionLabel = "Connect to Database";
 
   return (
@@ -14,8 +11,7 @@ export default function BranchRow(props: {
           {actionLabel}
         </a>
       </span>
-      <div className=" flex flex-row gap-4 w-1/5 justify-end">
-      </div>
+      <div className=" flex flex-row gap-4 w-1/5 justify-end"></div>
     </div>
   );
 }

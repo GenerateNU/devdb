@@ -14,6 +14,7 @@ interface ProjectListProps {
     }>;
     creator: string;
     createdOn: Date;
+    baseConnection?: string | null
   }>;
   openProject: number | null;
   handleToggle: (index: number) => void;
@@ -39,6 +40,7 @@ const ProjectList: React.FC<ProjectListProps> = ({
           createdOn={project.createdOn}
           isOpen={openProject === index}
           onToggle={() => handleToggle(index)}
+          baseConnection={project.baseConnection}
         />
       ))}
     </div>

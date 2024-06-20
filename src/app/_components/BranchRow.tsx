@@ -1,5 +1,4 @@
-export default function BranchRow(props: { creator: string; name: string }) {
-  const actionLabel = "Connect to Database";
+export default function BranchRow(props: { creator: string; name: string, baseConnection?: string | null }) {
 
   return (
     <div className="flex justify-between items-center py-3 pl-12 pr-8 shadow-inner">
@@ -7,9 +6,9 @@ export default function BranchRow(props: { creator: string; name: string }) {
         {props.creator} / {props.name}
       </span>
       <span className=" w-2/5">
-        <a href="#" className="hover:underline">
-          {actionLabel}
-        </a>
+        {props.baseConnection && <a onClick={() => navigator.clipboard.writeText(`${props.baseConnection}/${props.name}`)} className="hover:underline">
+          Copy Connection URL
+        </a>}
       </span>
       <div className=" flex flex-row gap-4 w-1/5 justify-end"></div>
     </div>

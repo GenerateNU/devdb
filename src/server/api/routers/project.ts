@@ -47,6 +47,11 @@ export const project = {
               },
             },
           },
+          rdsInstance: {
+            select: {
+              baseConnection: true,
+            },
+          },
         },
         where: {
           ...(input.searchTerms !== ""

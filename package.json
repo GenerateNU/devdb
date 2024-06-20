@@ -41,6 +41,7 @@
     "next-auth": "^4.24.6",
     "nextjs-cors": "^2.2.0",
     "octokit": "^4.0.2",
+    "openai": "^4.47.3",
     "parse-git-config": "^3.0.0",
     "parse-github-url": "^1.0.2",
     "react": "18.2.0",

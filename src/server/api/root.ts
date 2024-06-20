@@ -3,6 +3,7 @@ import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 import { greeting } from "./routers/greeting";
 import { project } from "./routers/project";
 import { githubWebhookRouter } from "./routers/prisma";
+import { dummy } from "./routers/dummy";
 
 /**
  * This is the primary router for your server.
@@ -14,6 +15,7 @@ export const appRouter = createTRPCRouter({
   health: greeting,
   database: project,
   webhook: githubWebhookRouter,
+  dummy: dummy,
 });
 
 // export type definition of API

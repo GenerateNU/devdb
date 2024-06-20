@@ -1,4 +1,5 @@
 import gitUrlParse from "git-url-parse";
+import { waitUntil } from "async-wait-until";
 import { z } from "zod";
 
 import { protectedProcedure, publicProcedure } from "~/server/api/trpc";
@@ -11,6 +12,8 @@ import {
   StopRDSInstance,
 } from "~/server/external/aws";
 import { DBProvider } from "~/server/external/types";
+import { PushPrismaSchema } from "~/app/api/github/utils";
+import { PushSchemaFromBranch } from "~/server/prisma/schema";
 
 export const project = {
   get: protectedProcedure
@@ -70,10 +73,14 @@ export const project = {
 
   create: protectedProcedure
     .input(
-      z.object({ repoUrl: z.string(), provider: z.nativeEnum(DBProvider) }),
+      z.object({
+        repoUrl: z.string(),
+        provider: z.nativeEnum(DBProvider),
+        branch: z.string().optional(),
+      }),
     )
     .mutation(async ({ ctx, input }) => {
-      const branch = "main";
+      const branch = input.branch ?? "main";
 
       const parsedUrl = gitUrlParse(input.repoUrl);
 
@@ -102,7 +109,21 @@ export const project = {
 
       const result = await CreateRDSInstance(id, input.provider);
 
-      return result;
+      // Wait until the database is available to then push the schema
+      waitUntil(
+        async () =>
+          (await GetRDSInstanceStatus(id)).toLowerCase() === "available",
+        { timeout: 900000, intervalBetweenAttempts: 10000 },
+      )
+        .then(async (matching) => {
+          console.log(matching);
+          await PushSchemaFromBranch(branch, owner, name);
+        })
+        .catch((reason) => {
+          console.error(reason);
+        });
+
+      return { result };
     }),
 
   delete: protectedProcedure

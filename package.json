@@ -18,6 +18,7 @@
     "@auth/prisma-adapter": "^1.4.0",
     "@aws-sdk/client-rds": "^3.572.0",
     "@octokit/rest": "^20.1.1",
+    "@octokit/types": "^13.5.0",
     "@prisma/client": "^5.10.2",
     "@t3-oss/env-nextjs": "^0.10.1",
     "@tanstack/react-query": "^5.25.0",
@@ -28,6 +29,7 @@
     "@types/inquirer": "^9.0.7",
     "@types/parse-git-config": "^3.0.4",
     "@types/parse-github-url": "^1.0.3",
+    "async-wait-until": "^2.0.12",
     "autoprefixer": "^10.4.19",
     "axios": "^1.7.2",
     "execa": "^9.1.0",
@@ -63,7 +65,8 @@
     "prisma": "^5.10.2",
     "tailwindcss": "^3.4.1",
     "tsup": "^8.0.2",
-    "typescript": "^5.4.2"
+    "typescript": "^5.4.2",
+    "@types/bun": "latest"
   },
   "ct3aMetadata": {
     "initVersion": "7.32.0"

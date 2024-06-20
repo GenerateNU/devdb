@@ -95,9 +95,8 @@ export async function GetRDSConnectionURL(
         const password = "devpassword123";
         const awsEndpoint = response.DBInstances[0].Endpoint?.Address;
         const port = response.DBInstances[0].Endpoint?.Port;
-        const dbName = response.DBInstances[0].DBName;
 
-        const connection = `${provider}://${username}:${password}@${awsEndpoint}:${port}/${dbName}`;
+        const connection = `${provider}://${username}:${password}@${awsEndpoint}:${port}`;
 
         return connection;
       } else {

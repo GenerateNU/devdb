@@ -7,7 +7,9 @@
     "dev": "tsup --watch",
     "format": "prettier --write ."
   },
-  "bin": "./dist/index.js",
+  "bin": {
+    "generate-devdb": "dist/index.js"
+  },
   "devDependencies": {
     "@types/bun": "latest",
     "@types/parse-git-config": "^3.0.4",
@@ -29,5 +31,6 @@
     "parse-git-config": "^3.0.0",
     "parse-github-url": "^1.0.2",
     "prisma": "^5.14.0"
-  }
+  },
+  "version": "0.0.1"
 }

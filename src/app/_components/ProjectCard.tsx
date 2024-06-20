@@ -8,7 +8,6 @@ import Image from "next/image";
 interface Branch {
   creator: string;
   name: string;
-  status: string;
 }
 
 interface ProjectCardProps {
@@ -21,6 +20,7 @@ interface ProjectCardProps {
   creator: string;
   createdOn: Date;
   isOpen: boolean;
+  baseConnection?: string | null;
   onToggle: () => void;
 }
 
@@ -34,6 +34,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   creator,
   createdOn,
   isOpen,
+  baseConnection,
   onToggle,
 }) => {
   const pauseProjectMutation = api.database.stop.useMutation();
@@ -106,7 +107,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
               key={index}
               creator={branch.creator}
               name={branch.name}
-              status={branch.status}
+              baseConnection={baseConnection}
             />
           ))}
         </div>

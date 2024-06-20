@@ -27,16 +27,16 @@ export default function DashboardItems() {
       route: project.repository,
       branchesCount: project.branches.length,
       databasesCount: project.branches.length,
-      instanceStatus: "Unknown",
+      instanceStatus: project.status,
       branches: project.branches.map((branch) => {
         return {
           creator: branch.createdBy.name ?? "Unknown",
           name: branch.name,
-          status: "TODO: REMOVE",
         };
       }),
       creator: project.createdBy.name ?? "Unknown",
       createdOn: project.createdAt,
+      baseConnection: project.rdsInstance?.baseConnection,
     };
   });
 

@@ -1,11 +1,7 @@
 import { App } from "octokit";
 import gitUrlParse from "git-url-parse";
 
-export async function CreateWebhook(repoUrl: string) {
-  const parsedUrl = gitUrlParse(repoUrl);
-
-  const { owner, name } = parsedUrl;
-
+async function GetOctokitInstallation(owner: string, name: string) {
   const app = new App({
     appId: process.env.GITHUB_APP_ID!,
     privateKey: process.env.GITHUB_PRIVATE_KEY!,
@@ -25,7 +21,35 @@ export async function CreateWebhook(repoUrl: string) {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
   const installationId: number = response.data.id;
 
-  const octokit = await app.getInstallationOctokit(installationId);
+  return await app.getInstallationOctokit(installationId);
+}
+
+export async function GetSchemaContents(repoUrl: string, branch: string) {
+  const parsedUrl = gitUrlParse(repoUrl);
+  const { owner, name } = parsedUrl;
+
+  const octokit = await GetOctokitInstallation(owner, name);
+  const response = await octokit.request(
+    `GET /repos/${owner}/${name}/contents/{path}`,
+    {
+      owner: owner,
+      repo: name,
+      path: "./prisma/schema.prisma",
+      ref: branch,
+      headers: {
+        "X-GitHub-Api-Version": "2022-11-28",
+      },
+    },
+  );
+
+  return response;
+}
+
+export async function CreateWebhook(repoUrl: string) {
+  const parsedUrl = gitUrlParse(repoUrl);
+  const { owner, name } = parsedUrl;
+
+  const octokit = await GetOctokitInstallation(owner, name);
 
   try {
     const response = await octokit.request(

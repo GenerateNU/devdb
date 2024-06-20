@@ -118,7 +118,7 @@ export const project = {
       )
         .then(async (matching) => {
           console.log(matching);
-          await PushSchemaFromBranch(branch, owner, name);
+          await PushSchemaFromBranch(input.repoUrl, branch, owner, name);
         })
         .catch((reason) => {
           console.error(reason);

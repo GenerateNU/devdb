@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import OpenAI from "openai";
 import gitUrlParse from "git-url-parse";
-import { Octokit } from "@octokit/rest";
+import { GetSchemaContents } from "./external/github";
 
 const prisma = new PrismaClient();
 
@@ -116,11 +116,6 @@ async function tryCreateDataWithRetry(
   }
 }
 
-// Initialize Octokit with an access token
-const octokit = new Octokit({
-  auth: process.env.GITHUB_ACCESS_TOKEN,
-});
-
 async function dummyCreate(
   repository: string,
   branch: string,
@@ -128,15 +123,8 @@ async function dummyCreate(
 ): Promise<{ message: string }> {
   const parsedUrl = gitUrlParse(repository);
   const { owner, name } = parsedUrl;
-  const { data } = await octokit.repos.getContent({
-    owner: owner,
-    repo: name,
-    ref: branch,
-    path: "prisma/schema.prisma",
-    mediaType: {
-      format: "raw",
-    },
-  });
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const { data } = await GetSchemaContents(repository, branch);
 
   const schema = data as unknown as string;
 

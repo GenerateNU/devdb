@@ -27,21 +27,18 @@ export async function PushSchemaFromBranch(
   if (branch && branchInfo?.project.rdsInstanceId) {
     // Fetch the content of the Prisma schema file using Octokit
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const { data } = await GetSchemaContents(repository, branch);
+    const content = await GetSchemaContents(repository, branch);
 
-    if (!Array.isArray(data) && data) {
-      const baseConnection = await GetRDSConnectionURL(
-        branchInfo.project.rdsInstanceId,
-      );
-      const content = data as unknown as string;
+    const baseConnection = await GetRDSConnectionURL(
+      branchInfo.project.rdsInstanceId,
+    );
 
-      if (baseConnection && data) {
-        await PushPrismaSchema(owner, name, branch, baseConnection, content);
-      } else {
-        console.error("Base connection not yet available. Try again later");
-      }
+    if (baseConnection && content) {
+      await PushPrismaSchema(owner, name, branch, baseConnection, content);
     } else {
-      console.error("Is directory");
+      console.error("Base connection not yet available. Try again later");
     }
+  } else {
+    console.error("Is directory");
   }
 }

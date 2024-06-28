@@ -113,7 +113,11 @@ export const project = {
       });
 
       const result = await CreateRDSInstance(id, input.provider);
-      await CreateWebhook(href);
+
+      // Only create webhook if not running locally
+      if (!process.env.NEXTAUTH_URL?.includes("localhost")) {
+        await CreateWebhook(href);
+      }
 
       // Wait until the database is available to then push the schema
       waitUntil(

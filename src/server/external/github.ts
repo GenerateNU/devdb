@@ -30,19 +30,30 @@ export async function GetSchemaContents(repoUrl: string, branch: string) {
 
   const octokit = await GetOctokitInstallation(owner, name);
   const response = await octokit.request(
-    `GET /repos/${owner}/${name}/contents/{path}`,
+    "GET /repos/{owner}/{repo}/contents/{path}",
     {
       owner: owner,
       repo: name,
-      path: "./prisma/schema.prisma",
+      path: "prisma/schema.prisma",
       ref: branch,
+      mediaType: { format: "raw" },
       headers: {
         "X-GitHub-Api-Version": "2022-11-28",
       },
     },
   );
 
-  return response;
+  if (Array.isArray(response.data)) return "";
+
+  const content =
+    response.data.type === "file"
+      ? Buffer.from(response.data.content, "base64").toString("utf8")
+      : "";
+
+  console.log(content);
+  console.log(response.data);
+
+  return content;
 }
 
 export async function CreateWebhook(repoUrl: string) {

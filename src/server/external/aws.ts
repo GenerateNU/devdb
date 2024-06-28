@@ -100,7 +100,7 @@ export async function GetRDSConnectionURL(
         const connection = `${provider}://${username}:${password}@${awsEndpoint}:${port}`;
 
         // Update database
-        await db.rDSInstance.update({
+        const updateRes = await db.rDSInstance.update({
           where: {
             id: instanceId,
           },
@@ -108,6 +108,8 @@ export async function GetRDSConnectionURL(
             baseConnection: connection,
           },
         });
+
+        console.log(updateRes);
 
         return connection;
       } else {
